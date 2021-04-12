@@ -1,6 +1,8 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import Home from '../views/Home.vue';
+import Home from '@/views/Home.vue'; // equivalent to '../views/Home.vue'
+import Thread from '@/views/Thread.vue';
+// import { authGuard } from '@/auth';
 
 Vue.use(VueRouter);
 
@@ -9,6 +11,14 @@ const routes = [
     path: '/',
     name: 'Home',
     component: Home,
+    // beforeEnter: authGuard,
+  },
+  {
+    path: '/thread/:id',
+    name: 'Thread',
+    component: Thread,
+    props: true,
+    // beforeEnter: authGuard,
   },
   {
     path: '/about',
