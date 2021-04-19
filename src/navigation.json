@@ -1,6 +1,12 @@
 {
     "pages": [
-        "Home",
-        "About"
+        {
+            "name": "Home",
+            "path": "/"
+        },
+        {
+            "name": "About",
+            "path": "/about"
+        }
     ]
 }
