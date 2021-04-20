@@ -7,7 +7,6 @@
         <div class="uk-navbar-left">
           <router-link class="uk-navbar-item uk-logo" to="/">
             <!-- <img src="../assets/images/logo.png" uk-svg width="70" height="50"/> -->
-            <!-- <span class="uk-margin-small-right" uk-icon="settings"></span> -->
             Neighborhood
           </router-link>
         </div>
@@ -15,7 +14,7 @@
         <div v-if="!$auth.loading" class="uk-navbar-center">
           <div v-if="$auth.isAuthenticated" class="uk-navbar-item">
 
-            <a class="uk-icon-button" href="#modal-sections" uk-icon="plus" uk-toggle style="color: black;"></a>
+            <a class="uk-icon-button tm-icon-button" href="#modal-sections" uk-icon="plus" uk-toggle></a>
             <!-- TODO: replace modal with a dropdown -->
             <div id="modal-sections" uk-modal>
               <div class="uk-modal-dialog">
@@ -183,5 +182,25 @@ export default {
 }
 #user {
   text-transform: none;
+}
+// .uk-logo {
+//   color: rgb(32, 203, 154);
+// }
+.tm-icon-button {
+  background-color: rgb(30, 200, 155);
+  color: black;
+  outline: none;
+}
+.tm-icon-button:hover,
+.tm-icon-button:focus {
+  background-color: rgb(35, 175, 135);
+  color: black;
+  outline: none;
+}
+/* OnClick + Active */
+.tm-icon-button:active,
+.uk-active > .tm-icon-button {
+  background-color: rgb(35, 175, 135);
+  color: black;
 }
 </style>
