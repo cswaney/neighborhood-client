@@ -16,6 +16,7 @@
           <div v-if="$auth.isAuthenticated" class="uk-navbar-item">
 
             <a class="uk-icon-button" href="#modal-sections" uk-icon="plus" uk-toggle style="color: black;"></a>
+            <!-- TODO: replace modal with a dropdown -->
             <div id="modal-sections" uk-modal>
               <div class="uk-modal-dialog">
                 <button class="uk-modal-close-default" type="button" uk-close></button>
@@ -106,7 +107,7 @@
               </ul>
             </div>
 
-            <a href="" class="uk-icon-button uk-margin-small-left" uk-icon="cog" style="color: black;"></a>
+            <a href="#" class="uk-icon-button uk-margin-small-left" uk-icon="cog" style="color: black;"></a>
             <!-- TODO: make a settings panel -->
             <div id="dropdown" uk-dropdown="mode: click; pos: bottom-justify">
               <ul class="uk-nav uk-dropdown-nav">
@@ -122,12 +123,20 @@
                 </li>
                 <li class="uk-nav-divider"></li>
                 <li>
-                  <a class="dropdown-item" href="#" @click="logout">
+                  <a class="dropdown-item" href="#">
                     <span class="uk-margin-small-right" uk-icon="sign-out"></span>Logout
                   </a>
                 </li>
               </ul>
             </div>
+
+            <a
+              href="#"
+              class="uk-icon-button uk-margin-small-left"
+              uk-icon="sign-out"
+              style="color: black;"
+              @click="logout">
+            </a>
 
           </div>
 
