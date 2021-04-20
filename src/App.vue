@@ -6,6 +6,9 @@
 </template>
 
 <script>
+import UIKit from 'uikit';
+import Icons from 'uikit/dist/js/uikit-icons';
+UIKit.use(Icons);
 import Navbar from '@/components/Navbar.vue';
 
 export default {
