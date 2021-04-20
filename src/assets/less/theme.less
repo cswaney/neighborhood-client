@@ -49,6 +49,14 @@
     font-display: swap;
 }
 
+@font-face {
+    font-family: 'Niconne';
+    src: url('../fonts/Niconne-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
 
 // UIkit
 // ========================================================================
@@ -271,6 +279,12 @@ html {
     font-size: 13px;
 }
 
+.uk-logo, .uk-logo:hover, .uk-logo:focus {
+    font-family: Niconne;
+    font-size: 32px;
+    color: #fff;
+}
+
 // Color Mode
 // .tm-navbar-container:not(.uk-navbar-transparent):extend(.uk-light all) {}
 
@@ -350,7 +364,21 @@ html {
 .tm-button-default,
 .tm-button-primary { border-radius: 500px; }
 
-// .tm-button-default {}
+.tm-button-default {
+    background-color: #fff;
+}
+.tm-button-default:hover {
+    background-color: #fff;
+}
+.tm-button-default:focus {
+    background-color: #fff;
+}
+.tm-button-default:active {
+    background-color: #fff;
+}
+.tm-button-default:visited {
+    background-color: #fff;
+}
 
 .tm-button-large { line-height: 48px; }
 
@@ -418,6 +446,19 @@ html {
 }
 
 /*
+ * Card
+ */
+// .tm-card-body {
+//     padding: 10px;
+// }
+// .tm-card-header {
+//     padding: 10px;
+// }
+// .tm-card-footer {
+//     padding: 10px;
+// }
+
+ /*
  * Text
  */
 
