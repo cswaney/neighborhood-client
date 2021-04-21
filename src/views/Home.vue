@@ -55,7 +55,7 @@ export default {
   data() {
     return {
       user: {
-        id: 'eb5f5b78-82a9-4a02-8e75-7b0cc7f271df',
+        id: '112000289774224950540',
         name: 'John Smith',
         locationId: 'd58940f2-6c45-4087-b6f5-fe1fba5916e0',
         locationName: 'Piscataway, NJ',
@@ -85,21 +85,23 @@ export default {
   computed: {
     loading () {
       return this.$auth.loading;
+    },
+    authUserId() {
+      return this.$auth.user.sub.split('|')[1];
     }
   },
   methods: {
     async getUser() {
-      console.log(`fetching user (id=${this.$auth.user.id}`); // TODO: ?
+      console.log(`fetching user (id=${this.authUserId})`);
       const token = await this.$auth.getTokenSilently();
-      // const url = 'http:127.0.0.1:5000/api/user/'; // Uses user from auth token
-      const url = apiEndpoint + '/user/'
+      const url = apiEndpoint + `/user/${this.authUserId}`;
       const { data } = await axios.get(url, {
         headers: {
           Authorization: `Bearer ${token}`, // send the access token through the Auth header
         },
       });
       console.log('done.');
-      this.user = data;
+      this.user = data.info;
     },
     async getThreads() {
       console.log(`fetching threads (location=${this.user.locationId})...`);
@@ -115,14 +117,14 @@ export default {
     },
   },
   created() {
-    console.log('created view: Home');
+    console.log(`created view: Home`);
   },
   watch: {
-    loading () {
+    async loading () {
       if (!this.loading) {
         console.log('this.$auth done loading');
-        // this.getUser();
-        // this.getThreads();
+        await this.getUser();
+        await this.getThreads();
       } else {
         console.log('this.$auth loading')
       }
