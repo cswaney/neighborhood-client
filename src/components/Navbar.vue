@@ -172,9 +172,9 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="less">
-#nav:not(.uk-navbar-transparent) {
-  background: rgb(0, 0, 0);
-}
+// #nav:not(.uk-navbar-transparent) {
+//   background: rgb(0, 0, 0);
+// }
 #dropdown {
   border-radius: 15px;
   padding-top: 10px;
@@ -186,21 +186,21 @@ export default {
 // .uk-logo {
 //   color: rgb(32, 203, 154);
 // }
-.tm-icon-button {
-  background-color: rgb(30, 200, 155);
-  color: black;
-  outline: none;
-}
-.tm-icon-button:hover,
-.tm-icon-button:focus {
-  background-color: rgb(35, 175, 135);
-  color: black;
-  outline: none;
-}
-/* OnClick + Active */
-.tm-icon-button:active,
-.uk-active > .tm-icon-button {
-  background-color: rgb(35, 175, 135);
-  color: black;
-}
+// .tm-icon-button {
+//   background-color: rgb(30, 200, 155);
+//   color: black;
+//   outline: none;
+// }
+// .tm-icon-button:hover,
+// .tm-icon-button:focus {
+//   background-color: rgb(35, 175, 135);
+//   color: black;
+//   outline: none;
+// }
+// /* OnClick + Active */
+// .tm-icon-button:active,
+// .uk-active > .tm-icon-button {
+//   background-color: rgb(35, 175, 135);
+//   color: black;
+// }
 </style>
