@@ -3,7 +3,7 @@
     <div class="uk-container uk-container-small">
 
       <img src="../assets/images/logo.png" class="uk-align-center uk-margin-remove-bottom" uk-svg width="210" height="150"/>
-      <h1 id="banner" class="uk-heading-small uk-text-center uk-margin-remove-top">{{ user.district }}</h1>
+      <h1 id="banner" class="uk-heading-small uk-text-center uk-margin-remove-top">{{ user.locationName }}</h1>
 
       <!-- <p>{{ $auth.user }}</p> -->
 
@@ -11,13 +11,12 @@
 
       <ul uk-accordion="multiple: false;">
         <li v-for="thread in threads" v-bind:key="thread.id">
-            <a class="uk-accordion-title" href="#">{{ thread.headline }}</a>
+            <a class="uk-accordion-title" href="#">{{ thread.name }}</a>
             <div class="uk-accordion-content">
                 <ul class="uk-list">
                   <li><b>What</b> {{ thread.description }} <router-link v-bind:to="'/thread/' + thread.id" class="uk-button uk-button-text">Details</router-link></li>
                   <li><b>When</b> {{ thread.date }}</li>
-                  <li><b>Where</b> {{ thread.location }}</li>
-                  <!-- <li><router-link v-bind:to="'/thread/' + thread.id" class="uk-button uk-button-text">Discussion</router-link></li> -->
+                  <li><b>Where</b> {{ thread.address }}</li>
                 </ul>
             </div>
         </li>
@@ -46,6 +45,7 @@
 <script>
 import axios from 'axios';
 // import Event from '@/components/Event.vue'; // @ is an alias to /src
+import { apiEndpoint } from '../config';
 
 export default {
   name: 'Home',
@@ -57,57 +57,76 @@ export default {
       user: {
         id: 'eb5f5b78-82a9-4a02-8e75-7b0cc7f271df',
         name: 'John Smith',
-        district: 'Piscataway, NJ',
+        locationId: 'd58940f2-6c45-4087-b6f5-fe1fba5916e0',
+        locationName: 'Piscataway, NJ',
       },
       threads: [
         {
           id: '101dcc9e-903d-4275-9fb8-dfaf5d999208',
-          location: '500 7th Ave',
           createdAt: '2021-04-11T19:51:04.734Z',
+          locationId: 'd58940f2-6c45-4087-b6f5-fe1fba5916e0',
+          name: 'Bake Sale',
           date: 'Sunday, May 1',
+          address: '500 7th Ave',
           description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla quis maximus metus. Suspendisse sed luctus lorem. Nullam vel est et augue sodales dapibus. Sed sed nisi vitae enim dapibus vulputate vel vel tellus. Aliquam magna nunc, porttitor vel ipsum at, mollis ultricies felis. Etiam feugiat velit non augue mollis laoreet. In volutpat non neque vel tempor.',
-          headline: 'Bake Sale'
         },
         {
           id: '084c143f-2656-46d7-9e82-e77edc1c1d92',
-          location: 'Forrester Park',
           createdAt: '2021-04-11T20:37:41.849Z',
+          locationId: 'd58940f2-6c45-4087-b6f5-fe1fba5916e0',
+          name: 'Park Spring Clean',
           date: 'Saturday, May 7',
+          address: 'Forrester Park',
           description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla quis maximus metus. Suspendisse sed luctus lorem. Nullam vel est et augue sodales dapibus. Sed sed nisi vitae enim dapibus vulputate vel vel tellus. Aliquam magna nunc, porttitor vel ipsum at, mollis ultricies felis. Etiam feugiat velit non augue mollis laoreet. In volutpat non neque vel tempor.',
-          headline: 'Park Spring Clean',
         },
       ],
     };
+  },
+  computed: {
+    loading () {
+      return this.$auth.loading;
+    }
   },
   methods: {
     async getUser() {
       console.log(`fetching user (id=${this.$auth.user.id}`); // TODO: ?
       const token = await this.$auth.getTokenSilently();
-      const url = 'http:127.0.0.1:5000/api/user/'; // Uses user from auth token
-      const { data } = await axios.get(url, {
-        headers: {
-          Authorization: `Bearer ${token}`, // send the access token through the Auth header
-        },
-      });
-      this.user = data;
-    },
-    async getThreads() {
-      console.log(`fetching threads (district=${this.user.district})...`);
-      const token = await this.$auth.getTokenSilently();
-      const url = `http:127.0.0.1:5000/api/threads/${this.user.district}`;
+      // const url = 'http:127.0.0.1:5000/api/user/'; // Uses user from auth token
+      const url = apiEndpoint + '/user/'
       const { data } = await axios.get(url, {
         headers: {
           Authorization: `Bearer ${token}`, // send the access token through the Auth header
         },
       });
       console.log('done.');
-      this.threads = data;
+      this.user = data;
+    },
+    async getThreads() {
+      console.log(`fetching threads (location=${this.user.locationId})...`);
+      const token = await this.$auth.getTokenSilently();
+      const url = apiEndpoint + `/events/location/${this.user.locationId}`;
+      const { data } = await axios.get(url, {
+        headers: {
+          Authorization: `Bearer ${token}`, // send the access token through the Auth header
+        },
+      });
+      console.log('done.');
+      this.threads = data.events;
     },
   },
   created() {
     console.log('created view: Home');
-    // this.getUser();
-    // this.getThreads();
+  },
+  watch: {
+    loading () {
+      if (!this.loading) {
+        console.log('this.$auth done loading');
+        // this.getUser();
+        // this.getThreads();
+      } else {
+        console.log('this.$auth loading')
+      }
+    }
   },
 };
 </script>
