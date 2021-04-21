@@ -116,8 +116,12 @@ export default {
       this.threads = data.events;
     },
   },
-  created() {
+  async created() {
     console.log(`created view: Home`);
+    if (!this.loading) {
+      await this.getUser();
+      await this.getThreads();
+    }
   },
   watch: {
     async loading () {
