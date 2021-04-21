@@ -14,8 +14,8 @@
       </ul> -->
 
       <div class="uk-text-center">
-        <h1 class="uk-heading-small uk-margin-small-bottom">{{ event.title }}</h1>
-        <h4 class="uk-margin-remove">{{ event.date }} @ {{ event.location }}</h4>
+        <h1 class="uk-heading-small uk-margin-small-bottom">{{ event.name }}</h1>
+        <h4 class="uk-margin-remove">{{ event.date }} @ {{ event.address }}</h4>
         <img class="uk-border-rounded uk-align-center" src="../assets/images/playground.jpg" width="480" height="480" alt="">
         <p>{{ event.description }}</p>
       </div>
@@ -44,7 +44,7 @@
                   </div>
               </article>
               <ul class="uk-margin-medium-top">
-                  <li v-for="comment in replies" :key="comment.id" class="uk-margin-small-top">
+                  <li v-for="comment in replies" :key="comment.commentId" class="uk-margin-small-top">
                       <!-- <comment v-bind="comment" type="reply"></comment> -->
                       <article class="uk-comment uk-comment-primary uk-visible-toggle" tabindex="-1">
                           <header class="uk-comment-header uk-position-relative">
@@ -75,6 +75,7 @@
 <script>
 import axios from 'axios';
 // import Comment from '@/components/Comment.vue'; // @ is an alias to /src
+import { apiEndpoint } from '../config';
 
 export default {
   name: 'Thread',
@@ -87,7 +88,8 @@ export default {
   data() {
     return {
       event: {
-        title: 'Park Spring Cleaning',
+        // id: '7aa791ac-9b06-41c3-b6e3-c9e4d058fcb7',
+        name: 'Park Spring Cleaning',
         date: 'Sunday, May 1',
         location: 'Forrester Park',
         description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla quis maximus metus. Suspendisse sed luctus lorem. Nullam vel est et augue sodales dapibus. Sed sed nisi vitae enim dapibus vulputate vel vel tellus. Aliquam magna nunc, porttitor vel ipsum at, mollis ultricies felis. Etiam feugiat velit non augue mollis laoreet. In volutpat non neque vel tempor.',
@@ -122,19 +124,22 @@ export default {
   },
   methods: {
     async getComments() {
-      console.log(`fetching comments (id=${this.id})...`);
+      console.log(`fetching comments (event=${this.id})...`);
       const token = await this.$auth.getTokenSilently();
-      const url = `http:127.0.0.1:5000/api/comments/${this.id}`;
+      const url = apiEndpoint + `/thread/${this.id}`;
       const { data } = await axios.get(url, {
         headers: {
           Authorization: `Bearer ${token}`, // send the access token through the Auth header
         },
       });
       console.log('done.');
-      this.comments = data;
+      this.comments = data.comments;
     },
   },
   computed: {
+    loading () {
+      return this.$auth.loading;
+    },
     announcement () {
       return this.comments[0];
     },
@@ -142,9 +147,19 @@ export default {
       return this.comments.slice(1);
     },
   },
-  created() {
-    console.log('created view: Thread');
-    // this.getComments();
+  async created() {
+    console.log(`created view: Thread`);
+    if (!this.loading) {
+      await this.getComments();
+    }
   },
+  watch: {
+    async loading () {
+      if (!this.loading) {
+        console.log('this.$auth done loading');
+        await this.getComments(this.event.id);
+      }
+    }
+  }
 };
 </script>
