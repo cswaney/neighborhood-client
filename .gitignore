@@ -24,3 +24,4 @@ pnpm-debug.log*
 
 # Config
 auth_config.json
+config.js
