@@ -2,6 +2,39 @@
   <div class="uk-section uk-section-default uk-section-small">
     <div class="uk-container uk-container-small">
 
+      <a class="uk-icon-button tm-icon-button" href="#" uk-icon="plus" uk-toggle></a>
+      <div id="event-dropdown" uk-dropdown="mode: click; pos: bottom-center;">
+          <form>
+              <div class="uk-margin-small-bottom">
+                  <input id="event-title-input" class="uk-input uk-form-width-medium" type="text" placeholder="Add event" v-model="title">
+              </div>
+              <div class="uk-margin-small">
+                  <span class="uk-margin-small-right" uk-icon="clock"></span>
+                  <input id="event-input" class="uk-input uk-form-width-medium" type="text" placeholder="Date" v-model="date">
+              </div>
+              <div class="uk-margin-small">
+                  <span class="uk-margin-small-right" uk-icon="location"></span>
+                  <input id="event-input" class="uk-input uk-form-width-medium" type="text" placeholder="Address" v-model="address">
+              </div>
+              <div class="uk-margin-small uk-margin-remove-bottom">
+                  <span class="uk-margin-small-right" uk-icon="comment"></span>
+                  <input id="event-input" class="uk-input uk-form-width-medium" type="text" placeholder="Description" v-model="description">
+              </div>
+              <div class="uk-margin-small uk-margin-remove-bottom">
+                  <div uk-form-custom="target: true">
+                      <span class="uk-margin-small-right" uk-icon="file-text"></span>
+                      <input type="file" v-on:change="setAttachment">
+                      <input id="event-input" class="uk-input uk-form-width-medium" type="text" placeholder="Attachment" disabled>
+                  </div>
+              </div>
+              <hr class="uk-margin-small">
+              <div class="uk-margin-small uk-text-right">
+                  <a class="uk-icon-button tm-icon-button uk-margin-small-right" href="#" uk-icon="close" uk-toggle="target: #event-dropdown;"></a>
+                  <a id="event-check" class="uk-icon-button tm-icon-button" href="#" uk-icon="check" v-on:click="createEvent"></a>
+              </div>
+          </form>
+      </div>
+
       <img src="../assets/images/logo.png" class="uk-align-center uk-margin-remove-bottom" uk-svg width="210" height="150"/>
       <h1 id="banner" class="uk-heading-small uk-text-center uk-margin-remove-top">{{ user.locationName }}</h1>
 
@@ -60,6 +93,11 @@ export default {
         locationId: 'd58940f2-6c45-4087-b6f5-fe1fba5916e0',
         locationName: 'Piscataway, NJ',
       },
+      title: '',
+      date: '',
+      address: '',
+      description: '',
+      attachment: '',
       threads: [
         {
           id: '101dcc9e-903d-4275-9fb8-dfaf5d999208',
@@ -115,6 +153,32 @@ export default {
       console.log('done.');
       this.threads = data.events;
     },
+    async createEvent() {
+      console.log(`creating event (location=${this.user.locationId})...`);
+      const token = await this.$auth.getTokenSilently();
+      const url = apiEndpoint + '/events';
+      const event = {
+        name: this.title,
+        description: this.description,
+        locationId: this.user.locationId,
+        locationName: this.user.locationName,
+        address: this.address,
+        date: this.date,
+        userId: this.user.userId
+      }
+      const { data } = await axios.post(url, JSON.stringify(event), {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`, // send the access token through the Auth header
+        },
+      });
+      console.log('done.');
+      console.log('created event:', data.event);
+    },
+    setAttachment(event) {
+      console.log('setting attachment: ', event.target.files);
+      this.attachment = event.target.files[0];
+    }
   },
   async created() {
     console.log(`created view: Home`);
@@ -146,5 +210,42 @@ b {
 #banner {
   font-family: Niconne;
   font-size: 48px;
+}
+
+#dropdown {
+  border-radius: 15px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+#event-dropdown {
+  border-radius: 10px;
+  padding-top: 30px;
+  padding-bottom: 5px;
+}
+#event-title-input {
+    width: 300px;
+    font-size: 24px;
+    border-left-color: white;
+    border-right-color: white;
+    border-top-color: white;
+    /* border-bottom-color: rgb(32, 203, 154); */
+    margin-bottom: 10px;
+}
+#event-title-input:active, #event-title-input:focus {
+    width: 300px;
+    border-left-color: white;
+    border-right-color: white;
+    border-top-color: white;
+    border-bottom-color: rgb(32, 203, 154);
+}
+#event-input {
+    border-left-color: white;
+    border-right-color: white;
+    border-top-color: white;
+    border-bottom-color: white;
+    /* border-bottom-color: rgb(32, 203, 154); */
+}
+#event-check {
+  background-color: rgba(32, 203, 154, 0.2);
 }
 </style>
