@@ -314,11 +314,11 @@ b {
   height: 1.4em;
   margin-left: 10px;
   float: right;
-  background-image: url("../assets/icons/chevron-down.svg");
+  background-image: url("../assets/icons/chevron-left.svg");
   background-repeat: no-repeat;
   background-position: 50% 50%;
 }
 .uk-open > .uk-accordion-title::before {
-  background-image: url("../assets/icons/chevron-up.svg");
+  background-image: url("../assets/icons/chevron-down.svg");
 }
 </style>
