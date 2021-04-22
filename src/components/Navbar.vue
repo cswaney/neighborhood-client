@@ -6,7 +6,7 @@
         
         <div class="uk-navbar-left">
           <router-link class="uk-navbar-item uk-logo" to="/">
-            <!-- <img src="../assets/images/logo.png" uk-svg width="70" height="50"/> -->
+            <!-- <img class="uk-margin-small-right" src="../assets/images/logo-light.png" uk-svg width="45" height="45"/> -->
             Neighborhood
           </router-link>
         </div>
