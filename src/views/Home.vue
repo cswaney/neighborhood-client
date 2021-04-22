@@ -35,6 +35,8 @@
           </form>
       </div>
 
+      <a class="uk-icon-button tm-icon-button uk-margin-small-left" href="#" uk-icon="refresh" v-on:click="getThreads"></a>
+
       <!-- <img src="../assets/images/logo.jpg" class="uk-align-center uk-margin-remove-bottom" uk-svg width="280" height="200"/> -->
       <img src="../assets/images/logo.png" class="uk-align-center uk-margin-remove-bottom" uk-svg width="280" height="200"/>
       <h1 id="banner" class="uk-heading-small uk-text-center uk-margin-remove-top uk-margin-medium-bottom">{{ user.locationName }}</h1>
