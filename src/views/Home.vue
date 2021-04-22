@@ -87,13 +87,12 @@
                   <form>
                       <div class="uk-margin-small">
                           <span class="uk-margin-small-right" uk-icon="warning"></span>
-                          <!-- <input id="event-input" class="uk-input uk-form-width-medium" type="text" placeholder="Date"> -->
-                          <p>Are you sure you want to delete this event?</p>
+                          <input id="event-input" class="uk-input uk-form-width-large" type="text" placeholder="Type DELETE to confirm">
                       </div>
                       <hr class="uk-margin-small">
                       <div class="uk-margin-small uk-text-right">
                           <a class="uk-icon-button tm-icon-button uk-margin-small-right" href="#" uk-icon="close" uk-toggle="target: #delete-event-dropdown;"></a>
-                          <a id="event-check" class="uk-icon-button tm-icon-button" href="#" uk-icon="check" v-on:click="deleteEvent"></a>
+                          <a id="event-warn" class="uk-icon-button tm-icon-button" href="#" uk-icon="check" v-on:click="deleteEvent(thread.id)"></a>
                       </div>
                   </form>
               </div>
@@ -229,10 +228,20 @@ export default {
       console.log('created event:', data.event);
     },
     async updateEvent() {
-      console.log('editing edit...');
+      console.log('editing event...');
     },
-    async deleteEvent() {
-      console.log('deleting edit...');
+    async deleteEvent(eventId) {
+      console.log(`deleting event (event=${eventId})...`);
+      const token = await this.$auth.getTokenSilently();
+      const url = apiEndpoint + `/events/${eventId}`;
+      // TODO: Pass the event data to delete endpoint (instead of looking up createdAt using event id)?
+      const { data } = await axios.delete(url, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      console.log('done.');
+      console.log('deleted event:', data.event);
     },
     setAttachment(event) {
       console.log('setting attachment: ', event.target.files);
@@ -307,6 +316,14 @@ b {
 }
 #event-check {
   background-color: rgba(32, 203, 154, 0.2);
+}
+#event-warn {
+  background-color: rgb(236, 11, 11);
+  color: rgb(200, 200, 200);
+}
+#event-warn:hover, #event-warn:focus {
+  background-color: rgba(236, 11, 11);
+  color: rgb(255, 255, 255);
 }
 .uk-accordion-title::before {
   content: "";
