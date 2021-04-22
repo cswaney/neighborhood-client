@@ -14,60 +14,6 @@
         <div v-if="!$auth.loading" class="uk-navbar-center">
           <div v-if="$auth.isAuthenticated" class="uk-navbar-item">
 
-            <a class="uk-icon-button tm-icon-button" href="#modal-sections" uk-icon="plus" uk-toggle></a>
-            <!-- TODO: replace modal with a dropdown -->
-            <div id="modal-sections" uk-modal>
-              <div class="uk-modal-dialog">
-                <button class="uk-modal-close-default" type="button" uk-close></button>
-                <!-- <div class="uk-modal-header">
-                  <h2 class="uk-modal-title">New Event</h2>
-                </div> -->
-                <div class="uk-modal-body">
-                  <form>
-                    <fieldset class="uk-fieldset">
-                      <div class="uk-margin">
-                        <label class="uk-form-label" for="name">Event</label>
-                        <div class="uk-form-controls">
-                          <input class="uk-input" id="name" type="text" placeholder="My awesome event">
-                        </div>
-                      </div>
-                      <div class="uk-margin">
-                        <label class="uk-form-label" for="date">Date</label>
-                        <div class="uk-form-controls">
-                          <input class="uk-input" id="date" type="text" placeholder="MM/DD/YYYY">
-                        </div>
-                      </div>
-                      <div class="uk-margin">
-                        <label class="uk-form-label" for="address">Address</label>
-                        <div class="uk-form-controls">
-                          <input class="uk-input" id="address" type="text" placeholder="Street, City, State, Zip">
-                        </div>
-                      </div>
-                      <div class="uk-margin">
-                        <label class="uk-form-label" for="link">Link</label>
-                        <div class="uk-form-controls">
-                          <input class="uk-input" id="link" type="text" placeholder="http://www.myawesomeevent.com">
-                        </div>
-                      </div>
-                      <div class="uk-margin">
-                        <label class="uk-form-label" for="attachment">Attachment</label>
-                        <div class="uk-form-controls">
-                          <div uk-form-custom="target: true">
-                            <input id="attachment" type="file">
-                            <input class="uk-input uk-form-width-medium" type="text" placeholder="Select file" disabled>
-                          </div>
-                        </div>
-                      </div>
-                    </fieldset>
-                  </form>
-                </div>
-                <div class="uk-modal-footer uk-text-right">
-                  <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
-                  <button class="uk-button uk-button-primary" type="button" style="background: rgb(32,203,154);">Create</button>
-                </div>
-              </div>
-            </div>
-
           </div>
         </div>
         
@@ -165,16 +111,13 @@ export default {
       this.$auth.logout({
         returnTo: window.location.origin,
       });
-    },
+    }
   },
 };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="less">
-// #nav:not(.uk-navbar-transparent) {
-//   background: rgb(0, 0, 0);
-// }
 #dropdown {
   border-radius: 15px;
   padding-top: 10px;
@@ -183,24 +126,4 @@ export default {
 #user {
   text-transform: none;
 }
-// .uk-logo {
-//   color: rgb(32, 203, 154);
-// }
-// .tm-icon-button {
-//   background-color: rgb(30, 200, 155);
-//   color: black;
-//   outline: none;
-// }
-// .tm-icon-button:hover,
-// .tm-icon-button:focus {
-//   background-color: rgb(35, 175, 135);
-//   color: black;
-//   outline: none;
-// }
-// /* OnClick + Active */
-// .tm-icon-button:active,
-// .uk-active > .tm-icon-button {
-//   background-color: rgb(35, 175, 135);
-//   color: black;
-// }
 </style>
