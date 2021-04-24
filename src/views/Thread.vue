@@ -280,7 +280,11 @@ export default {
       return this.$auth.loading;
     },
     authUserId() {
-      return this.$auth.user.sub.split('|')[1];
+      if (!loading) {
+        return this.$auth.user.sub.split('|')[1];
+      } else {
+        return undefined
+      }
     },
     announcement () {
       return this.comments[0];
@@ -291,7 +295,7 @@ export default {
   },
   async created() {
     console.log(`created view: Thread`);
-    if (!this.loading) {
+    if (this.$auth.isAuthenticated) {
       await this.getUser();
       this.getEvent(this.eventId);
       this.getComments(this.eventId);
@@ -299,7 +303,7 @@ export default {
   },
   watch: {
     async loading () {
-      if (!this.loading) {
+      if (!this.loading & this.$auth.isAuthenticated) {
         console.log('this.$auth done loading');
         await this.getUser();
         this.getEvent(this.eventId);

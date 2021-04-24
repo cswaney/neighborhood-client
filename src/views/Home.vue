@@ -185,7 +185,11 @@ export default {
       return this.$auth.loading;
     },
     authUserId() {
-      return this.$auth.user.sub.split('|')[1];
+      if (this.$auth.user) {
+        return this.$auth.user.sub.split('|')[1];
+      } else {
+        return undefined
+      }
     },
     auth() {
       return this.$auth;
@@ -295,14 +299,14 @@ export default {
   },
   async created() {
     console.log(`created view: Home`);
-    if (!this.loading) {
+    if (this.$auth.isAuthenticated) {
       await this.getUser();
       await this.getThreads();
     }
   },
   watch: {
     async loading () {
-      if (!this.loading) {
+      if (!this.loading & this.$auth.isAuthenticated) {
         console.log('this.$auth done loading');
         await this.getUser();
         await this.getThreads();
