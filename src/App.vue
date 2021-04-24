@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <Navbar/>
+    <!-- <Navbar/> -->
     <router-view/>
   </div>
 </template>
@@ -9,11 +9,11 @@
 import UIKit from 'uikit';
 import Icons from 'uikit/dist/js/uikit-icons';
 UIKit.use(Icons);
-import Navbar from '@/components/Navbar.vue';
+// import Navbar from '@/components/Navbar.vue';
 
 export default {
   components: {
-    Navbar,
+    // Navbar,
   },
 };
 
