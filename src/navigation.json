@@ -8,5 +8,15 @@
             "name": "About",
             "path": "/about"
         }
+    ],
+    "locations": [
+        {
+            "name": "Piscataway, NJ",
+            "id": "d58940f2-6c45-4087-b6f5-fe1fba5916e0"
+        },
+        {
+            "name": "Brooklyn, NY",
+            "id": "84de25d0-450b-4ed0-ad75-6e8022deda80"
+        }
     ]
 }
