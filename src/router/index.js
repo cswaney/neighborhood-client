@@ -14,7 +14,7 @@ const routes = [
     // beforeEnter: authGuard,
   },
   {
-    path: '/thread/:id',
+    path: '/thread/:eventId',
     name: 'Thread',
     component: Thread,
     props: true,
