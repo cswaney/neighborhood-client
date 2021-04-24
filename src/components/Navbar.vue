@@ -25,54 +25,35 @@
 
           <div v-if="$auth.isAuthenticated" class="uk-navbar-item">
             
+            <img
+              class="uk-border-circle uk-margin-small-right"
+              :src="avatarUrl"
+              width="36"
+              height="36"
+              alt=""
+            >
             <button
               id="user"
-              class="uk-button uk-button-default tm-button-default uk-icon"
-              type="button">{{ $auth.user.email }}
+              class="uk-button uk-button-default tm-button-default uk-icon uk-disabled"
+              type="button">
+                {{ $auth.user.email }}
             </button>
-            <!-- TODO: make a user panel -->
-            <div id="dropdown" uk-dropdown="mode: click; pos: bottom-justify">
-              <ul class="uk-nav uk-dropdown-nav">
-                <li>
-                  <router-link v-bind:to="'/account'" class="dropdown-item">
-                    <span class="uk-margin-small-right" uk-icon="user"></span>Account
-                  </router-link>
-                </li>
-                <li>
-                  <router-link v-bind:to="'/settings'" class="dropdown-item">
-                    <span class="uk-margin-small-right" uk-icon="settings"></span>Settings
-                  </router-link>
-                </li>
-                <li class="uk-nav-divider"></li>
-                <li>
-                  <a class="dropdown-item" href="#" @click="logout">
-                    <span class="uk-margin-small-right" uk-icon="sign-out"></span>Logout
-                  </a>
-                </li>
-              </ul>
-            </div>
 
             <a href="#" class="uk-icon-button uk-margin-small-left" uk-icon="cog" style="color: black;"></a>
-            <!-- TODO: make a settings panel -->
-            <div id="dropdown" uk-dropdown="mode: click; pos: bottom-justify">
-              <ul class="uk-nav uk-dropdown-nav">
-                <li>
-                  <router-link v-bind:to="'/account'" class="dropdown-item">
-                    <span class="uk-margin-small-right" uk-icon="user"></span>Account
-                  </router-link>
-                </li>
-                <li>
-                  <router-link v-bind:to="'/settings'" class="dropdown-item">
-                    <span class="uk-margin-small-right" uk-icon="settings"></span>Settings
-                  </router-link>
-                </li>
-                <li class="uk-nav-divider"></li>
-                <li>
-                  <a class="dropdown-item" href="#">
-                    <span class="uk-margin-small-right" uk-icon="sign-out"></span>Logout
-                  </a>
-                </li>
-              </ul>
+            <div id="settings-dropdown" uk-dropdown="mode: click; pos: bottom-center;">
+                <form class="uk-form-horizontal">
+                    <div class="uk-margin-small uk-margin-remove-bottom">
+                        <span class="uk-margin-small-right" uk-icon="location"></span>
+                        <select id="settings-location-select" class="uk-select uk-form-width-medium" v-model="selectedLocationName">
+                            <option v-for="location in locations" :key="location.id">{{ location.name }}</option>
+                        </select>                       
+                    </div>
+                    <hr class="uk-margin-small">
+                    <div class="uk-margin-small uk-text-right">
+                        <a class="uk-icon-button tm-icon-button uk-margin-small-right" href="#" uk-icon="close" uk-toggle="target: #settings-dropdown;"></a>
+                        <a id="settings-check" class="uk-icon-button tm-icon-button" uk-icon="check" v-on:click="$emit('update-location', selectedLocation)"></a>
+                    </div>
+                </form>
             </div>
 
             <a
@@ -98,10 +79,28 @@ import navigation from '@/navigation.json';
 
 export default {
   name: 'Navbar',
+  props: {
+    user: Object
+  },
   data() {
     return {
-      pages: navigation.pages,
+      locations: navigation.locations,
+      selectedLocationName: this.user.locationName,
     };
+  },
+  computed: {
+    avatarUrl() {
+      return this.$auth.user.picture;
+    },
+    selectedLocationId() {
+      return this.locations.find(loc => loc.name == this.selectedLocationName).id;
+    },
+    selectedLocation() {
+      return {
+        id: this.selectedLocationId,
+        name: this.selectedLocationName
+      }
+    }
   },
   methods: {
     login() {
@@ -123,7 +122,24 @@ export default {
   padding-top: 10px;
   padding-bottom: 10px;
 }
+#settings-dropdown {
+  border-radius: 10px;
+  padding-top: 30px;
+  padding-bottom: 5px;
+}
 #user {
   text-transform: none;
 }
+#settings-check {
+  background-color: rgba(32, 203, 154, 0.2);
+}
+#settings-location-select {
+    // width: 300px;
+    // font-size: 24px;
+    border-left-color: white;
+    border-right-color: white;
+    border-top-color: white;
+    border-bottom-color: white;
+}
+
 </style>
