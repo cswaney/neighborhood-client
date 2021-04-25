@@ -39,8 +39,8 @@
                 {{ $auth.user.email }}
             </button>
 
-            <a href="#" class="uk-icon-button uk-margin-small-left" uk-icon="cog" style="color: black;"></a>
-            <div id="settings-dropdown" uk-dropdown="mode: click; pos: bottom-center;">
+            <a href="#" class="uk-icon-button uk-margin-small-left" uk-icon="location" style="color: black;"></a>
+            <div id="settings-navbar-dropdown" uk-dropdown="mode: click; pos: bottom-center;">
                 <form class="uk-form-horizontal">
                     <div class="uk-margin-small uk-margin-remove-bottom">
                         <span class="uk-margin-small-right" uk-icon="location"></span>
@@ -50,7 +50,7 @@
                     </div>
                     <hr class="uk-margin-small">
                     <div class="uk-margin-small uk-text-right">
-                        <a class="uk-icon-button tm-icon-button uk-margin-small-right" href="#" uk-icon="close" uk-toggle="target: #settings-dropdown;"></a>
+                        <a class="uk-icon-button tm-icon-button uk-margin-small-right" href="#" uk-icon="close" uk-toggle="target: #settings-navbar-dropdown;"></a>
                         <a id="settings-check" class="uk-icon-button tm-icon-button" uk-icon="check" v-on:click="$emit('update-location', selectedLocation)"></a>
                     </div>
                 </form>
@@ -122,7 +122,7 @@ export default {
   padding-top: 10px;
   padding-bottom: 10px;
 }
-#settings-dropdown {
+#settings-navbar-dropdown {
   border-radius: 10px;
   padding-top: 30px;
   padding-bottom: 5px;
