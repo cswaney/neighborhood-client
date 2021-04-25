@@ -49,6 +49,26 @@
                         <p>{{ announcement.text }}</p>
                     </div>
                 </article>
+                <article v-else class="uk-comment uk-visible-toggle" tabindex="-1">
+                    <header class="uk-comment-header uk-position-relative">
+                        <div class="uk-grid-medium uk-flex-middle" uk-grid>
+                            <div class="uk-width-auto">
+                                <img class="uk-border-rounded" :src="user.avatarUrl" width="80" height="80" alt="">
+                            </div>
+                            <div class="uk-width-expand">
+                                <h4 class="uk-comment-title uk-margin-remove"><a class="uk-link-reset" href="#">{{ user.name }}</a></h4>
+                                <p class="uk-comment-meta uk-margin-remove-top"><a class="uk-link-reset" href="#">Now</a></p>
+                            </div>
+                        </div>
+                        <div class="uk-position-top-right uk-position-small uk-hidden-hover">
+                          <button class="uk-icon-button tm-icon-button uk-margin-small-right" uk-icon="close" v-on:click="addingComment=false"></button>
+                          <button id="comment-check" class="uk-icon-button tm-icon-button" href="#" uk-icon="check" v-on:click="postComment"></button>
+                        </div>
+                    </header>
+                    <div class="uk-comment-body">
+                        <textarea id="comment-textarea" class="uk-textarea uk-form-width-large uk-border-rounded" rows="4" placeholder="Start the conversation!" v-model="commentText"></textarea>
+                    </div>
+                </article>
                 <ul v-if="comments.length > 1" class="uk-margin-medium-top">
                     <li v-for="comment in replies" :key="comment.commentId" class="uk-margin-small-top">
                         <!-- <comment v-bind="comment" type="reply"></comment> -->
@@ -217,7 +237,7 @@ export default {
         text: this.commentText,
         userId: this.user.id,
         userName: this.user.name,
-        avatarUrl: this.user.avatarUrl
+        avatarUrl: this.user.avatarUrl // TODO: what if the user's avatar changes after the post?
       }
       const { data } = await axios.post(url, JSON.stringify(comment), {
         headers: {
@@ -280,7 +300,7 @@ export default {
       return this.$auth.loading;
     },
     authUserId() {
-      if (!loading) {
+      if (this.$auth.user) {
         return this.$auth.user.sub.split('|')[1];
       } else {
         return undefined
