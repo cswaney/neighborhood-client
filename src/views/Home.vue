@@ -6,8 +6,6 @@
       <div class="uk-section uk-section-default uk-section-small">
         <div class="uk-container uk-container-small">
 
-          <span v-show="loadingData" class="uk-position-center" uk-spinner="ratio: 3"></span>
-
           <div v-show="!loadingData">
 
               <div id="home" v-if="$auth.isAuthenticated & user != undefined">
@@ -202,6 +200,8 @@
               </div>
 
           </div>
+
+          <span v-show="loadingData" class="uk-position-center" uk-spinner="ratio: 3"></span>
 
         </div>
       </div>

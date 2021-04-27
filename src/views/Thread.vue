@@ -7,116 +7,161 @@
       <div class="uk-container uk-container-small">
 
         <div v-show="!loadingData">
-          <div class="uk-text-center">
-            <h1 class="uk-heading-small uk-margin-small-bottom">{{ event.name }}</h1>
-            <h4 class="uk-margin-remove">{{ event.date }} @ {{ event.address }}</h4>
-            <img class="uk-border-rounded uk-align-center" :src="event.attachmentUrl" width="480" height="480" alt="">
-            <p>{{ event.description }}</p>
+
+          <div id="home" v-if="$auth.isAuthenticated & user != undefined">
+            <div class="uk-text-center">
+              <h1 class="uk-heading-small uk-margin-small-bottom">{{ event.name }}</h1>
+              <h4 class="uk-margin-remove">{{ event.date }} @ {{ event.address }}</h4>
+              <img class="uk-border-rounded uk-align-center" v-show="event.attachmentUrl" :src="event.attachmentUrl" width="240" height="240">
+              <img class="uk-border-rounded uk-align-center" v-show="!event.attachmentUrl" src="../assets/images/placeholder.jpg" width="120" height="120">
+              <p>{{ event.description }}</p>
+            </div>
+
+            <h3>Discussion</h3>
+            <ul class="uk-comment-list">
+                <li>
+                    <!-- <comment v-bind="comments[0]" type="announcement"></comment> -->
+                    <article v-if="comments.length > 0" class="uk-comment uk-visible-toggle" tabindex="-1">
+                        <header class="uk-comment-header uk-position-relative">
+                            <div class="uk-grid-medium uk-flex-middle" uk-grid>
+                                <div class="uk-width-auto">
+                                    <img class="uk-border-rounded" :src="comments[0].avatarUrl" width="80" height="80" alt="">
+                                </div>
+                                <div class="uk-width-expand">
+                                    <h4 class="uk-comment-title uk-margin-remove"><a class="uk-link-reset" href="#">{{ comments[0].userName }}</a></h4>
+                                    <p class="uk-comment-meta uk-margin-remove-top"><a class="uk-link-reset" href="#">{{ comments[0].createdAt}}</a></p>
+                                </div>
+                            </div>
+                            <div class="uk-position-top-right uk-position-small uk-hidden-hover">
+                              <a class="uk-icon-button tm-icon-button" href="#comment-textarea" uk-icon="reply" uk-scroll v-on:click="addingComment=true"></a>
+                            </div>
+                        </header>
+                        <div class="uk-comment-body">
+                            <p>{{ announcement.text }}</p>
+                        </div>
+                    </article>
+                    <article v-if="comments.length == 0" class="uk-comment uk-visible-toggle" tabindex="-1">
+                        <header class="uk-comment-header uk-position-relative">
+                            <div class="uk-grid-medium uk-flex-middle" uk-grid>
+                                <div class="uk-width-auto">
+                                    <img class="uk-border-rounded" :src="user.avatarUrl" width="80" height="80" alt="">
+                                </div>
+                                <div class="uk-width-expand">
+                                    <h4 class="uk-comment-title uk-margin-remove"><a class="uk-link-reset" href="#">{{ user.name }}</a></h4>
+                                    <p class="uk-comment-meta uk-margin-remove-top"><a class="uk-link-reset" href="#">Now</a></p>
+                                </div>
+                            </div>
+                            <div class="uk-position-top-right uk-position-small uk-hidden-hover">
+                              <button class="uk-icon-button tm-icon-button uk-margin-small-right" uk-icon="close" v-on:click="resetCommentText"></button>
+                              <button id="comment-check" class="uk-icon-button tm-icon-button" href="#" uk-icon="check" v-on:click="postComment"></button>
+                            </div>
+                        </header>
+                        <div class="uk-comment-body">
+                            <textarea id="comment-textarea" class="uk-textarea tm-textarea uk-form-width-large uk-border-rounded" rows="4" placeholder="Start the conversation!" v-model="commentText"></textarea>
+                        </div>
+                    </article>
+                    <ul v-if="comments.length > 0" class="uk-margin-medium-top">
+                        <li v-for="comment in replies" :key="comment.commentId" class="uk-margin-small-top">
+                            <!-- <comment v-bind="comment" type="reply"></comment> -->
+                            <article class="uk-comment uk-comment-primary uk-visible-toggle uk-border-rounded" tabindex="-1">
+                                <header class="uk-comment-header uk-position-relative">
+                                    <div class="uk-grid-medium uk-flex-middle" uk-grid>
+                                        <div class="uk-width-auto">
+                                            <img class="uk-border-rounded" :src="comment.avatarUrl" width="80" height="80" alt="">
+                                        </div>
+                                        <div class="uk-width-expand">
+                                            <h4 class="uk-comment-title uk-margin-remove"><a class="uk-link-reset" href="#">{{ comment.userName }}</a></h4>
+                                            <p class="uk-comment-meta uk-margin-remove-top"><a class="uk-link-reset" href="#">{{ comment.createdAt }}</a></p>
+                                        </div>
+                                    </div>
+                                    <div class="uk-position-top-right uk-position-small uk-hidden-hover">
+                                      <button v-show="user.id == comment.userId" class="uk-icon-button tm-icon-button uk-margin-small-right" uk-icon="trash" v-on:click="deleteComment(comment.id)"></button>
+                                      <button v-show="user.id == comment.userId" class="uk-icon-button tm-icon-button uk-margin-small-right" href="#" uk-icon="pencil" v-on:click="toggleEditingComment"></button>
+                                      <a v-show="!editingComment" class="uk-icon-button tm-icon-button" href="#comment-textarea" uk-icon="reply" uk-scroll v-on:click="addingComment=true"></a>
+                                      <button v-show="editingComment" class="uk-icon-button tm-icon-button tm-button tm-button-primary" href="#" uk-icon="check" v-on:click="updateComment(comment.id)"></button>
+                                    </div>
+                                </header>
+                                <div v-show="!editingComment" class="uk-comment-body">
+                                    <p>{{ comment.text }}</p>
+                                </div>
+                                <div v-show="editingComment" class="uk-comment-body">
+                                    <textarea
+                                      class="uk-textarea tm-textarea uk-form-width-large uk-border-rounded"
+                                      rows="4"
+                                      v-bind:placeholder="comment.text"
+                                      v-model="commentText">
+                                    </textarea>
+                                </div>
+                            </article>
+                        </li>
+                        <li v-show="addingComment" class="uk-margin-small-top">
+                            <!-- <comment v-bind="comment" type="reply"></comment> -->
+                            <article class="uk-comment uk-comment-primary uk-visible-toggle uk-border-rounded" tabindex="-1">
+                                <header class="uk-comment-header uk-position-relative">
+                                    <div class="uk-grid-medium uk-flex-middle" uk-grid>
+                                        <div class="uk-width-auto">
+                                            <img class="uk-border-rounded" :src="user.avatarUrl" width="80" height="80" alt="">
+                                        </div>
+                                        <div class="uk-width-expand">
+                                            <h4 class="uk-comment-title uk-margin-remove"><a class="uk-link-reset" href="#">{{ user.name }}</a></h4>
+                                            <p class="uk-comment-meta uk-margin-remove-top"><a class="uk-link-reset" href="#">Now</a></p>
+                                        </div>
+                                    </div>
+                                    <div class="uk-position-top-right uk-position-small uk-hidden-hover">
+                                      <button class="uk-icon-button tm-icon-button uk-margin-small-right" uk-icon="close" v-on:click="addingComment=false"></button>
+                                      <button class="uk-icon-button tm-icon-button tm-button tm-button-primary" href="#" uk-icon="check" v-on:click="postComment"></button>
+                                    </div>
+                                </header>
+                                <div class="uk-comment-body">
+                                    <textarea id="comment-textarea" class="uk-textarea tm-textarea uk-form-width-large uk-border-rounded" rows="4" placeholder="Add comment..." v-model="commentText"></textarea>
+                                </div>
+                            </article>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
           </div>
 
-          <h3>Discussion</h3>
-          <ul class="uk-comment-list">
-              <li>
-                  <!-- <comment v-bind="comments[0]" type="announcement"></comment> -->
-                  <article v-if="comments.length > 0" class="uk-comment uk-visible-toggle" tabindex="-1">
-                      <header class="uk-comment-header uk-position-relative">
-                          <div class="uk-grid-medium uk-flex-middle" uk-grid>
-                              <div class="uk-width-auto">
-                                  <img class="uk-border-rounded" :src="comments[0].avatarUrl" width="80" height="80" alt="">
-                              </div>
-                              <div class="uk-width-expand">
-                                  <h4 class="uk-comment-title uk-margin-remove"><a class="uk-link-reset" href="#">{{ comments[0].userName }}</a></h4>
-                                  <p class="uk-comment-meta uk-margin-remove-top"><a class="uk-link-reset" href="#">{{ comments[0].createdAt}}</a></p>
+          <!-- <div id="setup" v-if="$auth.isAuthenticated & user == undefined">
+
+                  <a class="uk-icon-button tm-icon-button uk-invisible uk-disabled" href="#" uk-icon="plus" uk-toggle></a>
+
+                  <img src="../assets/images/logo.png" class="uk-align-center uk-margin-remove-bottom" uk-svg width="280" height="200"/>
+                  <button class="uk-button tm-button-primary uk-position-center uk-margin-xlarge-top" uk-toggle>Setup Account</button>
+                  <div id="settings-dropdown" class="tm-dropdown" uk-dropdown="mode: click; pos: top-center;">
+                      <form class="uk-form-horizontal">
+                          <div class="uk-margin-small">
+                            <span class="uk-margin-small-right" uk-icon="user"></span>
+                            <input class="uk-input uk-form-width-medium tm-input" type="text" placeholder="Name" v-model="inputName">
+                          </div>
+                          <div class="uk-margin-small uk-margin-remove-bottom">
+                              <span class="uk-margin-small-right" uk-icon="location"></span>
+                              <select class="uk-select uk-form-width-medium tm-select uk-border-rounded" v-model="selectedLocationName">
+                                  <option v-for="location in locations" :key="location.id">{{ location.name }}</option>
+                              </select>                       
+                          </div>
+                          <div class="uk-margin-small uk-margin-remove-bottom">
+                              <div uk-form-custom="target: true">
+                                  <span class="uk-margin-small-right" uk-icon="file-text"></span>
+                                  <input type="file" v-on:change="setAttachedFile">
+                                  <input class="uk-input uk-form-width-medium uk-border-rounded" type="text" placeholder="Attachment" disabled>
                               </div>
                           </div>
-                          <div class="uk-position-top-right uk-position-small uk-hidden-hover">
-                            <a class="uk-icon-button tm-icon-button" href="#comment-textarea" uk-icon="reply" uk-scroll v-on:click="addingComment=true"></a>
+                          <hr class="uk-margin-small">
+                          <div class="uk-margin-small uk-text-right">
+                              <a class="uk-icon-button tm-icon-button uk-margin-small-right" href="#" uk-icon="close" uk-toggle="target: #settings-dropdown;"></a>
+                              <a class="uk-icon-button tm-icon-button tm-button-primary" uk-icon="check" v-on:click="createUser"></a>
                           </div>
-                      </header>
-                      <div class="uk-comment-body">
-                          <p>{{ announcement.text }}</p>
-                      </div>
-                  </article>
-                  <article v-if="comments.length == 0" class="uk-comment uk-visible-toggle" tabindex="-1">
-                      <header class="uk-comment-header uk-position-relative">
-                          <div class="uk-grid-medium uk-flex-middle" uk-grid>
-                              <div class="uk-width-auto">
-                                  <img class="uk-border-rounded" :src="user.avatarUrl" width="80" height="80" alt="">
-                              </div>
-                              <div class="uk-width-expand">
-                                  <h4 class="uk-comment-title uk-margin-remove"><a class="uk-link-reset" href="#">{{ user.name }}</a></h4>
-                                  <p class="uk-comment-meta uk-margin-remove-top"><a class="uk-link-reset" href="#">Now</a></p>
-                              </div>
-                          </div>
-                          <div class="uk-position-top-right uk-position-small uk-hidden-hover">
-                            <button class="uk-icon-button tm-icon-button uk-margin-small-right" uk-icon="close" v-on:click="resetCommentText"></button>
-                            <button id="comment-check" class="uk-icon-button tm-icon-button" href="#" uk-icon="check" v-on:click="postComment"></button>
-                          </div>
-                      </header>
-                      <div class="uk-comment-body">
-                          <textarea id="comment-textarea" class="uk-textarea tm-textarea uk-form-width-large uk-border-rounded" rows="4" placeholder="Start the conversation!" v-model="commentText"></textarea>
-                      </div>
-                  </article>
-                  <ul v-if="comments.length > 0" class="uk-margin-medium-top">
-                      <li v-for="comment in replies" :key="comment.commentId" class="uk-margin-small-top">
-                          <!-- <comment v-bind="comment" type="reply"></comment> -->
-                          <article class="uk-comment uk-comment-primary uk-visible-toggle uk-border-rounded" tabindex="-1">
-                              <header class="uk-comment-header uk-position-relative">
-                                  <div class="uk-grid-medium uk-flex-middle" uk-grid>
-                                      <div class="uk-width-auto">
-                                          <img class="uk-border-rounded" :src="comment.avatarUrl" width="80" height="80" alt="">
-                                      </div>
-                                      <div class="uk-width-expand">
-                                          <h4 class="uk-comment-title uk-margin-remove"><a class="uk-link-reset" href="#">{{ comment.userName }}</a></h4>
-                                          <p class="uk-comment-meta uk-margin-remove-top"><a class="uk-link-reset" href="#">{{ comment.createdAt }}</a></p>
-                                      </div>
-                                  </div>
-                                  <div class="uk-position-top-right uk-position-small uk-hidden-hover">
-                                    <button v-show="user.id == comment.userId" class="uk-icon-button tm-icon-button uk-margin-small-right" uk-icon="trash" v-on:click="deleteComment(comment.id)"></button>
-                                    <button v-show="user.id == comment.userId" class="uk-icon-button tm-icon-button uk-margin-small-right" href="#" uk-icon="pencil" v-on:click="toggleEditingComment"></button>
-                                    <a v-show="!editingComment" class="uk-icon-button tm-icon-button" href="#comment-textarea" uk-icon="reply" uk-scroll v-on:click="addingComment=true"></a>
-                                    <button v-show="editingComment" class="uk-icon-button tm-icon-button tm-button tm-button-primary" href="#" uk-icon="check" v-on:click="updateComment(comment.id)"></button>
-                                  </div>
-                              </header>
-                              <div v-show="!editingComment" class="uk-comment-body">
-                                  <p>{{ comment.text }}</p>
-                              </div>
-                              <div v-show="editingComment" class="uk-comment-body">
-                                  <textarea
-                                    class="uk-textarea tm-textarea uk-form-width-large uk-border-rounded"
-                                    rows="4"
-                                    v-bind:placeholder="comment.text"
-                                    v-model="commentText">
-                                  </textarea>
-                              </div>
-                          </article>
-                      </li>
-                      <li v-show="addingComment" class="uk-margin-small-top">
-                          <!-- <comment v-bind="comment" type="reply"></comment> -->
-                          <article class="uk-comment uk-comment-primary uk-visible-toggle uk-border-rounded" tabindex="-1">
-                              <header class="uk-comment-header uk-position-relative">
-                                  <div class="uk-grid-medium uk-flex-middle" uk-grid>
-                                      <div class="uk-width-auto">
-                                          <img class="uk-border-rounded" :src="user.avatarUrl" width="80" height="80" alt="">
-                                      </div>
-                                      <div class="uk-width-expand">
-                                          <h4 class="uk-comment-title uk-margin-remove"><a class="uk-link-reset" href="#">{{ user.name }}</a></h4>
-                                          <p class="uk-comment-meta uk-margin-remove-top"><a class="uk-link-reset" href="#">Now</a></p>
-                                      </div>
-                                  </div>
-                                  <div class="uk-position-top-right uk-position-small uk-hidden-hover">
-                                    <button class="uk-icon-button tm-icon-button uk-margin-small-right" uk-icon="close" v-on:click="addingComment=false"></button>
-                                    <button class="uk-icon-button tm-icon-button tm-button tm-button-primary" href="#" uk-icon="check" v-on:click="postComment"></button>
-                                  </div>
-                              </header>
-                              <div class="uk-comment-body">
-                                  <textarea id="comment-textarea" class="uk-textarea tm-textarea uk-form-width-large uk-border-rounded" rows="4" placeholder="Add comment..." v-model="commentText"></textarea>
-                              </div>
-                          </article>
-                      </li>
-                  </ul>
-              </li>
-          </ul>
+                      </form>
+                  </div>
+
+          </div> -->
+
+          <div id="login" v-if="!$auth.isAuthenticated" v-show="!$auth.loading">
+            <a class="uk-icon-button tm-icon-button uk-invisible uk-disabled" href="#" uk-icon="plus" uk-toggle></a>
+            <img src="../assets/images/logo.png" class="uk-align-center uk-margin-remove-bottom" uk-svg width="280" height="200"/>
+          </div>
+
         </div>
 
         <span v-show="loadingData" class="uk-position-center" uk-spinner="ratio: 3"></span>
