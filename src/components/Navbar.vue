@@ -40,18 +40,24 @@
             </button>
 
             <a href="#" class="uk-icon-button uk-margin-small-left" uk-icon="location" style="color: black;"></a>
-            <div id="settings-navbar-dropdown" uk-dropdown="mode: click; pos: bottom-center;">
+            <div id="update-location-navbar-dropdown" uk-dropdown="mode: click; pos: bottom-center;">
                 <form class="uk-form-horizontal">
                     <div class="uk-margin-small uk-margin-remove-bottom">
                         <span class="uk-margin-small-right" uk-icon="location"></span>
-                        <select id="settings-location-select" class="uk-select uk-form-width-medium" v-model="selectedLocationName">
+                        <select class="uk-select tm-select uk-form-width-medium" v-model="selectedLocationName">
                             <option v-for="location in locations" :key="location.id">{{ location.name }}</option>
                         </select>                       
                     </div>
                     <hr class="uk-margin-small">
                     <div class="uk-margin-small uk-text-right">
-                        <a class="uk-icon-button tm-icon-button uk-margin-small-right" href="#" uk-icon="close" uk-toggle="target: #settings-navbar-dropdown;"></a>
-                        <a id="settings-check" class="uk-icon-button tm-icon-button" uk-icon="check" v-on:click="$emit('update-location', selectedLocation)"></a>
+                        <a class="uk-icon-button tm-icon-button uk-margin-small-right" href="#" uk-icon="close" uk-toggle="target: #update-location-navbar-dropdown;"></a>
+                        <a
+                          id="settings-check"
+                          class="uk-icon-button tm-icon-button tm-button-primary"
+                          uk-icon="check"
+                          uk-toggle="target: #update-location-navbar-dropdown;"
+                          v-on:click="$emit('update-location', selectedLocation)">
+                        </a>
                     </div>
                 </form>
             </div>
@@ -80,12 +86,18 @@ import navigation from '@/navigation.json';
 export default {
   name: 'Navbar',
   props: {
-    user: Object
+    // user: Object
+
+    // userId: String,
+    // userName: String,
+    // userLocationId: String,
+    userLocationName: String,
+    // userAvatarUrl: String
   },
   data() {
     return {
       locations: navigation.locations,
-      selectedLocationName: this.user.locationName,
+      selectedLocationName: this.userLocationName,
     };
   },
   computed: {
@@ -93,7 +105,11 @@ export default {
       return this.$auth.user.picture;
     },
     selectedLocationId() {
-      return this.locations.find(loc => loc.name == this.selectedLocationName).id;
+      if (this.selectedLocationName) {
+        return this.locations.find(loc => loc.name == this.selectedLocationName).id;
+      } else {
+        return '';
+      }
     },
     selectedLocation() {
       return {
@@ -112,6 +128,11 @@ export default {
       });
     }
   },
+  watch: {
+    userLocationName() {
+      this.selectedLocationName = this.userLocationName;
+    }
+  }
 };
 </script>
 
@@ -122,7 +143,7 @@ export default {
   padding-top: 10px;
   padding-bottom: 10px;
 }
-#settings-navbar-dropdown {
+#update-location-navbar-dropdown {
   border-radius: 10px;
   padding-top: 30px;
   padding-bottom: 5px;
@@ -130,16 +151,14 @@ export default {
 #user {
   text-transform: none;
 }
-#settings-check {
-  background-color: rgba(32, 203, 154, 0.2);
+.tm-button-primary {
+    color: white;
+    background-color: rgb(32, 203, 154);
 }
-#settings-location-select {
-    // width: 300px;
-    // font-size: 24px;
-    border-left-color: white;
-    border-right-color: white;
-    border-top-color: white;
-    border-bottom-color: white;
+.tm-button-primary:hover, .tm-button-primary:focus {
+    background-color: rgba(32, 203, 154, .8);
 }
-
+.tm-select:active, .tm-select:focus {
+  border-color: rgb(32, 203, 154);
+}
 </style>
