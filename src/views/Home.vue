@@ -1,12 +1,16 @@
 <template>
   <div id="root">
 
-      <Navbar v-bind:user="user" v-on:update-location="updateLocation"/>
+      <Navbar v-bind:userLocationName="userLocationName" v-on:update-location="updateLocation"/>
       
       <div class="uk-section uk-section-default uk-section-small">
         <div class="uk-container uk-container-small">
 
-          <div v-if="$auth.isAuthenticated & user != undefined" id="home">
+          <span v-show="loadingData" class="uk-position-center" uk-spinner="ratio: 3"></span>
+
+          <div v-show="!loadingData">
+
+              <div id="home" v-if="$auth.isAuthenticated & user != undefined">
 
                   <a class="uk-icon-button tm-icon-button" href="#" uk-icon="plus" uk-toggle></a>
                   <div id="add-event-dropdown" uk-dropdown="mode: click; pos: bottom-center;">
@@ -36,20 +40,20 @@
                           <hr class="uk-margin-small">
                           <div class="uk-margin-small uk-text-right">
                               <a class="uk-icon-button tm-icon-button uk-margin-small-right" href="#" uk-icon="close" uk-toggle="target: #add-event-dropdown;"></a>
-                              <a id="event-check" class="uk-icon-button tm-icon-button" href="#" uk-icon="check" v-on:click="createEvent"></a>
+                              <a
+                                class="uk-icon-button tm-icon-button tm-button-primary"
+                                href="#" uk-icon="check"
+                                uk-toggle="target: #add-event-dropdown;"
+                                v-on:click="createEvent">
+                              </a>
                           </div>
                       </form>
                   </div>
 
-                  <a class="uk-icon-button tm-icon-button uk-margin-small-left" href="#" uk-icon="refresh" v-on:click="getThreads"></a>
+                  <a class="uk-icon-button tm-icon-button uk-margin-small-left" href="#" uk-icon="refresh" v-on:click="refreshEvents"></a>
 
-                  <!-- <img src="../assets/images/logo.jpg" class="uk-align-center uk-margin-remove-bottom" uk-svg width="280" height="200"/> -->
                   <img src="../assets/images/logo.png" class="uk-align-center uk-margin-remove-bottom" uk-svg width="280" height="200"/>
                   <h1 id="banner" class="uk-heading-small uk-text-center uk-margin-remove-top uk-margin-medium-bottom">{{ user.locationName }}</h1>
-
-                  <!-- <p>{{ $auth.user }}</p> -->
-
-                  <!-- <event v-for="thread in threads" :key="thread.id" v-bind:event="thread"></event> -->
 
                   <ul uk-accordion="multiple: true;">
                     <li v-for="thread in threads" v-bind:key="thread.id">
@@ -100,106 +104,102 @@
                                   <hr class="uk-margin-small">
                                   <div class="uk-margin-small uk-text-right">
                                       <a class="uk-icon-button tm-icon-button uk-margin-small-right" href="#" uk-icon="close" uk-toggle="target: #delete-event-dropdown;"></a>
-                                      <a id="event-warn" class="uk-icon-button tm-icon-button" href="#" uk-icon="check" v-on:click="deleteEvent(thread.id)"></a>
+                                      <a
+                                        id="event-warn"
+                                        class="uk-icon-button tm-icon-button"
+                                        href="#"
+                                        uk-icon="check"
+                                        uk-toggle="target: #delete-event-dropdown;"
+                                        v-on:click="deleteEvent(thread.id)"
+                                        >
+                                      </a>
                                   </div>
                               </form>
                           </div>
+
+                          <router-link v-bind:to="'/thread/' + thread.id" class="uk-icon-button uk-margin-small-left" uk-icon="comments"></router-link>
                         </a>
-                        <div class="uk-accordion-content">
+                        <div class="uk-accordion-content tm-accordion-content uk-border-rounded">
                             <ul class="uk-list">
-                              <li><b>What</b> {{ thread.description }} <router-link v-bind:to="'/thread/' + thread.id" class="uk-button uk-button-text">Details</router-link></li>
+                              <li><b>What</b> {{ thread.description }}</li>
                               <li><b>When</b> {{ thread.date }}</li>
                               <li><b>Where</b> {{ thread.address }}</li>
                             </ul>
                         </div>
                     </li>
                   </ul>
+                      
+              </div>
 
-                  <!-- <ul class="uk-pagination uk-flex-center" uk-margin>
-                    <li><a href="#"><span uk-pagination-previous></span></a></li>
-                    <li><a href="#">1</a></li>
-                    <li class="uk-disabled"><span>...</span></li>
-                    <li><a href="#">4</a></li>
-                    <li><a href="#">5</a></li>
-                    <li><a href="#">6</a></li>
-                    <li class="uk-active"><span>7</span></li>
-                    <li><a href="#">8</a></li>
-                    <li><a href="#">9</a></li>
-                    <li><a href="#">10</a></li>
-                    <li class="uk-disabled"><span>...</span></li>
-                    <li><a href="#">20</a></li>
-                    <li><a href="#"><span uk-pagination-next></span></a></li>
-                  </ul> -->
+              <div id="setup" v-if="$auth.isAuthenticated & user == undefined">
 
-          </div>
-          
-          <div v-if="$auth.isAuthenticated & user == undefined" id="home">
+                      <a class="uk-icon-button tm-icon-button uk-invisible uk-disabled" href="#" uk-icon="plus" uk-toggle></a>
 
-                  <a class="uk-icon-button tm-icon-button uk-invisible uk-disabled" href="#" uk-icon="plus" uk-toggle></a>
-
-                  <img src="../assets/images/logo.png" class="uk-align-center uk-margin-remove-bottom" uk-svg width="280" height="200"/>
-                  <button class="uk-button tm-button-primary uk-position-center uk-margin-xlarge-top" uk-toggle>Setup Account</button>
-                  <div id="settings-dropdown" class="tm-dropdown" uk-dropdown="mode: click; pos: top-center;">
-                      <form class="uk-form-horizontal">
-                          <div class="uk-margin-small">
-                            <span class="uk-margin-small-right" uk-icon="user"></span>
-                            <input class="uk-input uk-form-width-medium tm-input" type="text" placeholder="Name" v-model="inputName">
-                          </div>
-                          <div class="uk-margin-small uk-margin-remove-bottom">
-                              <span class="uk-margin-small-right" uk-icon="location"></span>
-                              <select class="uk-select uk-form-width-medium tm-select uk-border-rounded" v-model="selectedLocationName">
-                                  <option v-for="location in locations" :key="location.id">{{ location.name }}</option>
-                              </select>                       
-                          </div>
-                          <div class="uk-margin-small uk-margin-remove-bottom">
-                              <div uk-form-custom="target: true">
-                                  <span class="uk-margin-small-right" uk-icon="file-text"></span>
-                                  <input type="file" v-on:change="setAttachedFile">
-                                  <input class="uk-input uk-form-width-medium uk-border-rounded" type="text" placeholder="Attachment" disabled>
+                      <img src="../assets/images/logo.png" class="uk-align-center uk-margin-remove-bottom" uk-svg width="280" height="200"/>
+                      <button class="uk-button tm-button-primary uk-position-center uk-margin-xlarge-top" uk-toggle>Setup Account</button>
+                      <div id="settings-dropdown" class="tm-dropdown" uk-dropdown="mode: click; pos: top-center;">
+                          <form class="uk-form-horizontal">
+                              <div class="uk-margin-small">
+                                <span class="uk-margin-small-right" uk-icon="user"></span>
+                                <input class="uk-input uk-form-width-medium tm-input" type="text" placeholder="Name" v-model="inputName">
                               </div>
-                          </div>
-                          <hr class="uk-margin-small">
-                          <div class="uk-margin-small uk-text-right">
-                              <a class="uk-icon-button tm-icon-button uk-margin-small-right" href="#" uk-icon="close" uk-toggle="target: #settings-dropdown;"></a>
-                              <a class="uk-icon-button tm-icon-button tm-button-primary" uk-icon="check" v-on:click="createUser"></a>
-                          </div>
-                      </form>
-                  </div>
+                              <div class="uk-margin-small uk-margin-remove-bottom">
+                                  <span class="uk-margin-small-right" uk-icon="location"></span>
+                                  <select class="uk-select uk-form-width-medium tm-select uk-border-rounded" v-model="selectedLocationName">
+                                      <option v-for="location in locations" :key="location.id">{{ location.name }}</option>
+                                  </select>                       
+                              </div>
+                              <div class="uk-margin-small uk-margin-remove-bottom">
+                                  <div uk-form-custom="target: true">
+                                      <span class="uk-margin-small-right" uk-icon="file-text"></span>
+                                      <input type="file" v-on:change="setAttachedFile">
+                                      <input class="uk-input uk-form-width-medium uk-border-rounded" type="text" placeholder="Attachment" disabled>
+                                  </div>
+                              </div>
+                              <hr class="uk-margin-small">
+                              <div class="uk-margin-small uk-text-right">
+                                  <a class="uk-icon-button tm-icon-button uk-margin-small-right" href="#" uk-icon="close" uk-toggle="target: #settings-dropdown;"></a>
+                                  <a class="uk-icon-button tm-icon-button tm-button-primary" uk-icon="check" v-on:click="createUser"></a>
+                              </div>
+                          </form>
+                      </div>
 
-          </div>
+              </div>
 
-          <div v-if="!$auth.isAuthenticated" v-show="!$auth.loading" id="login">
+              <div id="login" v-if="!$auth.isAuthenticated" v-show="!$auth.loading">
 
-            <a class="uk-icon-button tm-icon-button uk-invisible uk-disabled" href="#" uk-icon="plus" uk-toggle></a>
-            <img src="../assets/images/logo.png" class="uk-align-center uk-margin-remove-bottom" uk-svg width="280" height="200"/>
-            <!-- <button class="uk-button tm-button-primary uk-position-center" v-on:click="login">Login</button> -->
-            <!-- <button class="uk-button tm-button-primary uk-position-center" href="#" uk-toggle>Create an account</button>
-            <div id="create-user-dropdown" uk-dropdown="mode: click; pos: bottom-center;">
-                <form>
-                    <div class="uk-margin-small">
-                        <span class="uk-margin-small-right" uk-icon="user"></span>
-                        <input class="uk-input uk-form-width-medium tm-user-input" type="text" placeholder="Name" v-model="name">
-                    </div>
-                    <div class="uk-margin-small uk-margin-remove-bottom">
-                        <span class="uk-margin-small-right" uk-icon="location"></span>
-                        <select id="settings-location-select" class="uk-select uk-form-width-medium" v-model="locationName">
-                            <option v-for="location in locations" :key="location.id">{{ location.name }}</option>
-                        </select>                       
-                    </div>
-                    <div class="uk-margin-small uk-margin-remove-bottom">
-                        <div uk-form-custom="target: true">
-                            <span class="uk-margin-small-right" uk-icon="file-text"></span>
-                            <input type="file" v-on:change="setAttachment">
-                            <input id="event-input" class="uk-input uk-form-width-medium" type="text" placeholder="Attachment" disabled>
+                <a class="uk-icon-button tm-icon-button uk-invisible uk-disabled" href="#" uk-icon="plus" uk-toggle></a>
+                <img src="../assets/images/logo.png" class="uk-align-center uk-margin-remove-bottom" uk-svg width="280" height="200"/>
+                <!-- <button class="uk-button tm-button-primary uk-position-center" v-on:click="login">Login</button> -->
+                <!-- <button class="uk-button tm-button-primary uk-position-center" href="#" uk-toggle>Create an account</button>
+                <div id="create-user-dropdown" uk-dropdown="mode: click; pos: bottom-center;">
+                    <form>
+                        <div class="uk-margin-small">
+                            <span class="uk-margin-small-right" uk-icon="user"></span>
+                            <input class="uk-input uk-form-width-medium tm-user-input" type="text" placeholder="Name" v-model="name">
                         </div>
-                    </div>
-                    <hr class="uk-margin-small">
-                    <div class="uk-margin-small uk-text-right">
-                        <a class="uk-icon-button tm-icon-button uk-margin-small-right" href="#" uk-icon="close" uk-toggle="target: #create-user-dropdown;"></a>
-                        <a class="uk-icon-button tm-icon-button tm-button-primary" href="#" uk-icon="check" v-on:click="createUser"></a>
-                    </div>
-                </form>
-            </div> -->
+                        <div class="uk-margin-small uk-margin-remove-bottom">
+                            <span class="uk-margin-small-right" uk-icon="location"></span>
+                            <select id="settings-location-select" class="uk-select uk-form-width-medium" v-model="locationName">
+                                <option v-for="location in locations" :key="location.id">{{ location.name }}</option>
+                            </select>                       
+                        </div>
+                        <div class="uk-margin-small uk-margin-remove-bottom">
+                            <div uk-form-custom="target: true">
+                                <span class="uk-margin-small-right" uk-icon="file-text"></span>
+                                <input type="file" v-on:change="setAttachment">
+                                <input id="event-input" class="uk-input uk-form-width-medium" type="text" placeholder="Attachment" disabled>
+                            </div>
+                        </div>
+                        <hr class="uk-margin-small">
+                        <div class="uk-margin-small uk-text-right">
+                            <a class="uk-icon-button tm-icon-button uk-margin-small-right" href="#" uk-icon="close" uk-toggle="target: #create-user-dropdown;"></a>
+                            <a class="uk-icon-button tm-icon-button tm-button-primary" href="#" uk-icon="check" v-on:click="createUser"></a>
+                        </div>
+                    </form>
+                </div> -->
+
+              </div>
 
           </div>
 
@@ -228,11 +228,12 @@ export default {
       locations: navigation.locations,
 
       user: {
-        id: '112000289774224950540',
-        name: 'John Smith',
-        locationId: 'd58940f2-6c45-4087-b6f5-fe1fba5916e0',
-        locationName: 'Piscataway, NJ',
+        // id: '112000289774224950540',
+        // name: 'John Smith',
+        // locationId: 'd58940f2-6c45-4087-b6f5-fe1fba5916e0',
+        // locationName: 'Piscataway, NJ',
       },
+      userLocationName: '',
 
       title: '',
       date: '',
@@ -241,33 +242,35 @@ export default {
       attachment: '',
 
       threads: [
-        {
-          id: '101dcc9e-903d-4275-9fb8-dfaf5d999208',
-          createdAt: '2021-04-11T19:51:04.734Z',
-          locationId: 'd58940f2-6c45-4087-b6f5-fe1fba5916e0',
-          name: 'Bake Sale',
-          date: 'Sunday, May 1',
-          address: '500 7th Ave',
-          description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla quis maximus metus. Suspendisse sed luctus lorem. Nullam vel est et augue sodales dapibus. Sed sed nisi vitae enim dapibus vulputate vel vel tellus. Aliquam magna nunc, porttitor vel ipsum at, mollis ultricies felis. Etiam feugiat velit non augue mollis laoreet. In volutpat non neque vel tempor.',
-        },
-        {
-          id: '084c143f-2656-46d7-9e82-e77edc1c1d92',
-          createdAt: '2021-04-11T20:37:41.849Z',
-          locationId: 'd58940f2-6c45-4087-b6f5-fe1fba5916e0',
-          name: 'Park Spring Clean',
-          date: 'Saturday, May 7',
-          address: 'Forrester Park',
-          description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla quis maximus metus. Suspendisse sed luctus lorem. Nullam vel est et augue sodales dapibus. Sed sed nisi vitae enim dapibus vulputate vel vel tellus. Aliquam magna nunc, porttitor vel ipsum at, mollis ultricies felis. Etiam feugiat velit non augue mollis laoreet. In volutpat non neque vel tempor.',
-        },
+        // {
+        //   id: '101dcc9e-903d-4275-9fb8-dfaf5d999208',
+        //   createdAt: '2021-04-11T19:51:04.734Z',
+        //   locationId: 'd58940f2-6c45-4087-b6f5-fe1fba5916e0',
+        //   name: 'Bake Sale',
+        //   date: 'Sunday, May 1',
+        //   address: '500 7th Ave',
+        //   description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla quis maximus metus. Suspendisse sed luctus lorem. Nullam vel est et augue sodales dapibus. Sed sed nisi vitae enim dapibus vulputate vel vel tellus. Aliquam magna nunc, porttitor vel ipsum at, mollis ultricies felis. Etiam feugiat velit non augue mollis laoreet. In volutpat non neque vel tempor.',
+        // },
+        // {
+        //   id: '084c143f-2656-46d7-9e82-e77edc1c1d92',
+        //   createdAt: '2021-04-11T20:37:41.849Z',
+        //   locationId: 'd58940f2-6c45-4087-b6f5-fe1fba5916e0',
+        //   name: 'Park Spring Clean',
+        //   date: 'Saturday, May 7',
+        //   address: 'Forrester Park',
+        //   description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla quis maximus metus. Suspendisse sed luctus lorem. Nullam vel est et augue sodales dapibus. Sed sed nisi vitae enim dapibus vulputate vel vel tellus. Aliquam magna nunc, porttitor vel ipsum at, mollis ultricies felis. Etiam feugiat velit non augue mollis laoreet. In volutpat non neque vel tempor.',
+        // },
       ],
 
       inputName: '',
       selectedLocationName: '',
-      attachedFile: ''
+      attachedFile: '',
+
+      loadingData: false
     };
   },
   computed: {
-    loading () {
+    loadingAuth () {
       return this.$auth.loading;
     },
     authUserId() {
@@ -281,8 +284,12 @@ export default {
       return this.$auth;
     },
     selectedLocationId() {
-      return this.locations.find(loc => loc.name == this.selectedLocationName).id;
-    },
+      if (this.selectedLocationName) {
+        return this.locations.find(loc => loc.name == this.selectedLocationName).id;
+      } else {
+        return undefined;
+      }
+    }
     // TODO: use user avatar if available, else auth0 avatar
   },
   methods: {
@@ -306,6 +313,10 @@ export default {
       console.log('created user', data.user);
       this.inputName = '';
       this.selectedLocation = user.selectedLocationName;
+      // Set user data locally on success
+      this.user = data.user;
+      this.userLocationName = data.user.locationName;
+      // Upload avatar
       if (this.attachedFile != '') {
         const signedUrl = data.signedUrl;
         console.log(`uploading attachment (url=${signedUrl})`);
@@ -313,6 +324,8 @@ export default {
         this.attachedFile = '';  // remove attachment
         console.log('done.')
       }
+      // Fetch location data
+      this.getThreads(); 
     },
     async getUser() {
       console.log(`fetching user (id=${this.authUserId})`);
@@ -324,7 +337,13 @@ export default {
         },
       });
       console.log('done.');
-      this.user = data.info;
+      // Update local data if user is found
+      if (data.info) {
+        this.user = data.info;
+        this.userLocationName = data.info.locationName;
+      } else {
+        this.user = undefined
+      }
     },
     async getThreads() {
       console.log(`fetching threads (location=${this.user.locationId})...`);
@@ -364,6 +383,8 @@ export default {
       await axios.put(signedUrl, this.attachment);
       this.attachment = '';  // remove attachment
       console.log('done.');
+      // update local events on success
+      this.threads.push(data.event);
     },
     async updateEvent() {
       console.log('editing event...');
@@ -378,6 +399,9 @@ export default {
           'Authorization': `Bearer ${token}`,
         },
       });
+      // update local events on success
+      const index = this.threads.findIndex(event => event.id == eventId);
+      this.threads.splice(index, 1);      
       console.log('done.');
       console.log('deleted event:', data.event);
     },
@@ -402,12 +426,21 @@ export default {
         console.log('done.');
         this.user.locationId = selectedLocation.id;
         this.user.locationName = selectedLocation.name;
+        this.userLocationName = selectedLocation.name;
         console.log('updated user:', data.user);
 
         // TODO: else, indicate error
         // ...
         // console.log('done.');
+
+        // Fetch new location data
+        this.getThreads();
       }
+    },
+    async refreshEvents() {
+      this.loadingData = true;
+      this.getThreads();
+      this.loadingData = false;
     },
     login() {
       this.$auth.loginWithRedirect();
@@ -426,22 +459,28 @@ export default {
   async created() {
     console.log(`created view: Home`);
     if (this.$auth.isAuthenticated) {
+      this.loadingData = true;
       await this.getUser();
       if (this.user != undefined) {
         await this.getThreads();
+        this.loadingData = false;
       } else {
+        this.loadingData = false;
         console.log('no user found!');
       }
     }
   },
   watch: {
-    async loading () {
-      if (!this.loading & this.$auth.isAuthenticated) {
+    async loadingAuth () {
+      if (!this.loadingAuth & this.$auth.isAuthenticated) {
         console.log('this.$auth done loading');
+        this.loadingData = true;
         await this.getUser();
         if (this.user != undefined) {
           await this.getThreads();
+          this.loadingData = false;
         } else {
+          this.loadingData = false;
           console.log('no user found!');
         }
       } else {
@@ -501,12 +540,12 @@ b {
   background-color: rgba(32, 203, 154, 0.2);
 }
 #event-warn {
+  color: white;
   background-color: rgb(236, 11, 11);
-  color: rgb(200, 200, 200);
 }
 #event-warn:hover, #event-warn:focus {
-  background-color: rgba(236, 11, 11);
-  color: rgb(255, 255, 255);
+  color: white;
+  background-color: rgba(236, 11, 11, .8);
 }
 .uk-accordion-title::before {
   content: "";
@@ -542,5 +581,7 @@ b {
     border-top-color: white;
     border-bottom-color: white;
 }
-
+// .tm-accordion-content {
+//   background-color: rgb(248, 248, 248);
+// }
 </style>
