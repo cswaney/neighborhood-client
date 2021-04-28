@@ -59,7 +59,7 @@
                           
                           {{ thread.name }}
 
-                          <a v-if="thread.userId == user.id" class="uk-icon-button tm-icon-button uk-margin-small-left" href="#" uk-icon="pencil" uk-toggle></a>
+                          <button v-if="thread.userId == user.id" class="uk-icon-button tm-icon-button uk-margin-small-left" href="#" uk-icon="pencil" uk-toggle="#edit-event-dropdown"></button>
                           <div id="edit-event-dropdown" uk-dropdown="mode: click; pos: top-center;">
                               <form>
                                   <div class="uk-margin-small-bottom">
@@ -330,6 +330,7 @@ export default {
     async getUser() {
       console.log(`fetching user (id=${this.authUserId})`);
       const token = await this.$auth.getTokenSilently();
+      console.log(`token = ${token}`)
       const url = apiEndpoint + `/user/${this.authUserId}`;
       const { data } = await axios.get(url, {
         headers: {
@@ -386,8 +387,34 @@ export default {
       // update local events on success
       this.threads.push(data.event);
     },
-    async updateEvent() {
-      console.log('editing event...');
+    async updateEvent(eventId) {
+      console.log(`updating event (event=${eventId})...`);
+      const token = await this.$auth.getTokenSilently();
+      const url = apiEndpoint + `/events/${eventId}`;
+      const request = {
+        name: this.title,
+        description: this.description,
+        address: this.address,
+        date: this.date
+      };
+      const { data } = await axios.patch(url, JSON.stringify(request), {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      // update event locally on success
+      const index = this.threads.findIndex(event => event.id == eventId);
+      this.threads[index].title = this.title;
+      this.threads[index].description = this.description;
+      this.threads[index].address = this.address;
+      this.threads[index].date = this.date;
+      this.title = '';
+      this.description = '';
+      this.address = '';
+      this.date = '';
+      console.log('done.');
+      console.log('updated event:', data.event);
     },
     async deleteEvent(eventId) {
       console.log(`deleting event (event=${eventId})...`);
