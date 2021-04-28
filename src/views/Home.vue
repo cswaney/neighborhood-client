@@ -10,38 +10,39 @@
               
               <div id="home" v-if="$auth.isAuthenticated & user != undefined">
 
-                  <a class="uk-icon-button tm-icon-button" href="#" uk-icon="plus" uk-toggle></a>
-                  <div id="add-event-dropdown" uk-dropdown="mode: click; pos: bottom-center;">
+                  <a class="uk-icon-button tm-icon-button" href="#" uk-icon="plus" uk-toggle v-on:click="toggleAdding"></a>
+                  <div id="create-event" class="uk-dropdown tm-dropdown" uk-dropdown="mode: click; pos: bottom-center;">
                       <form>
                           <div class="uk-margin-small-bottom">
-                              <input id="event-title-input" class="uk-input uk-form-width-medium" type="text" placeholder="Add event" v-model="title">
+                              <input class="uk-input tm-input-large uk-form-width-medium" type="text" placeholder="Add event" v-model="title">
                           </div>
                           <div class="uk-margin-small">
                               <span class="uk-margin-small-right" uk-icon="clock"></span>
-                              <input id="event-input" class="uk-input uk-form-width-medium" type="text" placeholder="Date" v-model="date">
+                              <input class="uk-input tm-input uk-form-width-medium" type="text" placeholder="Date" v-model="date">
                           </div>
                           <div class="uk-margin-small">
                               <span class="uk-margin-small-right" uk-icon="location"></span>
-                              <input id="event-input" class="uk-input uk-form-width-medium" type="text" placeholder="Address" v-model="address">
+                              <input class="uk-input tm-input uk-form-width-medium" type="text" placeholder="Address" v-model="address">
                           </div>
                           <div class="uk-margin-small uk-margin-remove-bottom">
                               <span class="uk-margin-small-right" uk-icon="comment"></span>
-                              <input id="event-input" class="uk-input uk-form-width-medium" type="text" placeholder="Description" v-model="description">
+                              <input class="uk-input tm-input uk-form-width-medium" type="text" placeholder="Description" v-model="description">
                           </div>
                           <div class="uk-margin-small uk-margin-remove-bottom">
                               <div uk-form-custom="target: true">
                                   <span class="uk-margin-small-right" uk-icon="file-text"></span>
                                   <input type="file" v-on:change="setAttachment">
-                                  <input id="event-input" class="uk-input uk-form-width-medium" type="text" placeholder="Attachment" disabled>
+                                  <input class="uk-input tm-input uk-form-width-medium" type="text" placeholder="Attachment" disabled>
                               </div>
                           </div>
                           <hr class="uk-margin-small">
                           <div class="uk-margin-small uk-text-right">
-                              <a class="uk-icon-button tm-icon-button uk-margin-small-right" href="#" uk-icon="close" uk-toggle="target: #add-event-dropdown;"></a>
+                              <a class="uk-icon-button tm-icon-button uk-margin-small-right" href="#" uk-icon="close" uk-toggle="target: #create-event;"></a>
                               <a
-                                class="uk-icon-button tm-icon-button tm-button-primary"
+                                class="uk-icon-button tm-icon-button"
+                                v-bind:class="{ 'uk-disabled': !createEventRequestValidated, 'tm-button-primary': createEventRequestValidated }"
                                 href="#" uk-icon="check"
-                                uk-toggle="target: #add-event-dropdown;"
+                                uk-toggle="target: #create-event;"
                                 v-on:click="createEvent">
                               </a>
                           </div>
@@ -56,71 +57,7 @@
                   <ul uk-accordion="multiple: true;">
                     <li v-for="thread in threads" v-bind:key="thread.id">
 
-                        <a class="uk-accordion-title">
-                          
-                          {{ thread.name }}
-
-                          <a v-if="thread.userId == user.id" class="uk-icon-button tm-icon-button uk-margin-small-left" href="#" uk-icon="pencil" uk-toggle v-on:click="toggleEditing(thread)"></a>
-                          <div id="edit-event-dropdown" uk-dropdown="mode: click; pos: top-center;">
-                              <form>
-                                  <div class="uk-margin-small-bottom">
-                                      <input id="event-title-input" class="uk-input uk-form-width-medium" type="text" :placeholder="thread.name" v-model="title">
-                                  </div>
-                                  <div class="uk-margin-small">
-                                      <span class="uk-margin-small-right" uk-icon="clock"></span>
-                                      <input id="event-input" class="uk-input uk-form-width-medium" type="text" :placeholder="thread.date" v-model="date">
-                                  </div>
-                                  <div class="uk-margin-small">
-                                      <span class="uk-margin-small-right" uk-icon="location"></span>
-                                      <input id="event-input" class="uk-input uk-form-width-medium" type="text" :placeholder="thread.address" v-model="address">
-                                  </div>
-                                  <div class="uk-margin-small uk-margin-remove-bottom">
-                                      <span class="uk-margin-small-right" uk-icon="comment"></span>
-                                      <input id="event-input" class="uk-input uk-form-width-medium" type="text" :placeholder="thread.description" v-model="description">
-                                  </div>
-                                  <!-- <div class="uk-margin-small uk-margin-remove-bottom">
-                                      <div uk-form-custom="target: true">
-                                          <span class="uk-margin-small-right" uk-icon="file-text"></span>
-                                          <input type="file" v-on:change="setAttachment">
-                                          <input id="event-input" class="uk-input uk-form-width-medium" type="text" placeholder="Attachment" disabled>
-                                      </div>
-                                  </div> -->
-                                  <hr class="uk-margin-small">
-                                  <div class="uk-margin-small uk-text-right">
-                                      <a class="uk-icon-button tm-icon-button uk-margin-small-right" href="#" uk-icon="close" uk-toggle="target: #edit-event-dropdown;"></a>
-                                      <a
-                                        class="uk-icon-button tm-icon-button tm-button-primary"
-                                        href="#" uk-icon="check"
-                                        uk-toggle="target: #edit-event-dropdown;"
-                                        v-on:click="updateEvent(thread.id)">
-                                      </a>
-                                  </div>
-                              </form>
-                          </div>
-
-                          <a v-if="thread.userId == user.id" class="uk-icon-button tm-icon-button uk-margin-small-left" href="#" uk-icon="trash" uk-toggle="target: #delete-event-dropdown"></a>
-                          <div id="delete-event-dropdown" uk-dropdown="mode: click; pos: top-center;">
-                              <form>
-                                  <div class="uk-margin-small">
-                                      <span class="uk-margin-small-right" uk-icon="warning"></span>
-                                      <input id="event-input" class="uk-input uk-form-width-large" type="text" placeholder="Type DELETE to confirm" v-model="deleteConfirmation">
-                                  </div>
-                                  <hr class="uk-margin-small">
-                                  <div class="uk-margin-small uk-text-right">
-                                      <a class="uk-icon-button tm-icon-button uk-margin-small-right" href="#" uk-icon="close" uk-toggle="target: #delete-event-dropdown;"></a>
-                                      <a id="event-warn"
-                                        class="uk-icon-button tm-icon-button"
-                                        href="#"
-                                        uk-icon="check"
-                                        v-on:click="deleteEvent(thread.id)"
-                                        uk-toggle="target: #delete-event-dropdown;">
-                                      </a>
-                                  </div>
-                              </form>
-                          </div>
-
-                          <router-link v-bind:to="'/thread/' + thread.id" class="uk-icon-button uk-margin-small-left" uk-icon="comments"></router-link>
-                        </a>
+                        <a class="uk-accordion-title">{{ thread.name }}</a>
                         <div class="uk-accordion-content tm-accordion-content uk-border-rounded">
                             <ul class="uk-list">
                               <li><b>What</b> {{ thread.description }}</li>
@@ -128,10 +65,93 @@
                               <li><b>Where</b> {{ thread.address }}</li>
                             </ul>
                         </div>
+                        <div>
 
+                            <router-link v-bind:to="'/thread/' + thread.id" class="uk-icon-button uk-margin-small-top" uk-icon="comments"></router-link>
+
+                            <a
+                              v-if="thread.userId == user.id"
+                              class="uk-icon-button tm-icon-button uk-margin-small-left uk-margin-small-top"
+                              href="#"
+                              uk-icon="pencil"
+                              uk-toggle
+                              v-on:click="toggleEditing(thread)">
+                            </a>
+                            <div :id="'update-event-' + thread.id" class="uk-dropdown tm-dropdown" uk-dropdown="mode: click; pos: right-center;">
+                                <form>
+                                    <div class="uk-margin-small-bottom">
+                                        <input class="uk-input tm-input-large uk-form-width-medium" type="text" :placeholder="thread.name" v-model="title">
+                                    </div>
+                                    <div class="uk-margin-small">
+                                        <span class="uk-margin-small-right" uk-icon="clock"></span>
+                                        <input class="uk-input tm-input uk-form-width-medium" type="text" :placeholder="thread.date" v-model="date">
+                                    </div>
+                                    <div class="uk-margin-small">
+                                        <span class="uk-margin-small-right" uk-icon="location"></span>
+                                        <input class="uk-input tm-input uk-form-width-medium" type="text" :placeholder="thread.address" v-model="address">
+                                    </div>
+                                    <div class="uk-margin-small uk-margin-remove-bottom">
+                                        <span class="uk-margin-small-right" uk-icon="comment"></span>
+                                        <input class="uk-input tm-input uk-form-width-medium" type="text" :placeholder="thread.description" v-model="description">
+                                    </div>
+                                    <hr class="uk-margin-small">
+                                    <div class="uk-margin-small uk-text-right">
+                                        <a
+                                          class="uk-icon-button tm-icon-button uk-margin-small-right"
+                                          href="#"
+                                          uk-icon="close"
+                                          :uk-toggle="'target: #update-event-' + thread.id + ';'">
+                                        </a>
+                                        <a
+                                          class="uk-icon-button tm-icon-button tm-button-primary"
+                                          href="#"
+                                          uk-icon="check"
+                                          :uk-toggle="'target: #update-event-' + thread.id + ';'"
+                                          v-on:click="updateEvent(thread.id)">
+                                        </a>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <a></a>
+                            <div id="dummy-dropdown" uk-dropdown="mode: click; pos: right-center;"></div>
+
+                            <a
+                              v-if="thread.userId == user.id"
+                              class="uk-icon-button tm-icon-button uk-margin-small-left uk-margin-small-top"
+                              href="#"
+                              uk-icon="trash"
+                              uk-toggle>
+                            </a>
+                            <div :id="'delete-event-' + thread.id" class="uk-dropdown tm-dropdown" uk-dropdown="mode: click; pos: right-center;">
+                                <form>
+                                    <div class="uk-margin-small">
+                                        <span class="uk-margin-small-right" uk-icon="warning"></span>
+                                        <input class="uk-input tm-input uk-form-width-large" type="text" placeholder="Type DELETE to confirm" v-model="deleteConfirmation">
+                                    </div>
+                                    <hr class="uk-margin-small">
+                                    <div class="uk-margin-small uk-text-right">
+                                        <a
+                                          class="uk-icon-button tm-icon-button uk-margin-small-right"
+                                          href="#"
+                                          uk-icon="close"
+                                          :uk-toggle="'target: #delete-event-' + thread.id + ';'">
+                                        </a>
+                                        <a
+                                          class="uk-icon-button tm-icon-button tm-warning"
+                                          href="#"
+                                          uk-icon="check"
+                                          v-on:click="deleteEvent(thread.id)"
+                                          :uk-toggle="'target: #delete-event-' + thread.id + ';'">
+                                        </a>
+                                    </div>
+                                </form>
+                            </div>
+
+                        </div>
                     </li>
                   </ul>
-                      
+
               </div>
 
               <div id="setup" v-if="$auth.isAuthenticated & user == undefined">
@@ -173,34 +193,6 @@
 
                 <a class="uk-icon-button tm-icon-button uk-invisible uk-disabled" href="#" uk-icon="plus" uk-toggle></a>
                 <img src="../assets/images/logo.png" class="uk-align-center uk-margin-remove-bottom" uk-svg width="280" height="200"/>
-                <!-- <button class="uk-button tm-button-primary uk-position-center" v-on:click="login">Login</button> -->
-                <!-- <button class="uk-button tm-button-primary uk-position-center" href="#" uk-toggle>Create an account</button>
-                <div id="create-user-dropdown" uk-dropdown="mode: click; pos: bottom-center;">
-                    <form>
-                        <div class="uk-margin-small">
-                            <span class="uk-margin-small-right" uk-icon="user"></span>
-                            <input class="uk-input uk-form-width-medium tm-user-input" type="text" placeholder="Name" v-model="name">
-                        </div>
-                        <div class="uk-margin-small uk-margin-remove-bottom">
-                            <span class="uk-margin-small-right" uk-icon="location"></span>
-                            <select id="settings-location-select" class="uk-select uk-form-width-medium" v-model="locationName">
-                                <option v-for="location in locations" :key="location.id">{{ location.name }}</option>
-                            </select>                       
-                        </div>
-                        <div class="uk-margin-small uk-margin-remove-bottom">
-                            <div uk-form-custom="target: true">
-                                <span class="uk-margin-small-right" uk-icon="file-text"></span>
-                                <input type="file" v-on:change="setAttachment">
-                                <input id="event-input" class="uk-input uk-form-width-medium" type="text" placeholder="Attachment" disabled>
-                            </div>
-                        </div>
-                        <hr class="uk-margin-small">
-                        <div class="uk-margin-small uk-text-right">
-                            <a class="uk-icon-button tm-icon-button uk-margin-small-right" href="#" uk-icon="close" uk-toggle="target: #create-user-dropdown;"></a>
-                            <a class="uk-icon-button tm-icon-button tm-button-primary" href="#" uk-icon="check" v-on:click="createUser"></a>
-                        </div>
-                    </form>
-                </div> -->
 
               </div>
 
@@ -297,6 +289,21 @@ export default {
       } else {
         return undefined;
       }
+    },
+    createEventRequestValidated() {
+      if (!this.title) {
+        return false;
+      }
+      if (!this.date) {
+        return false;
+      }
+      if (!this.address) {
+        return false;
+      }
+      if (!this.description) {
+        return false;
+      }
+      return true;
     }
     // TODO: use user avatar if available, else auth0 avatar
   },
@@ -379,6 +386,7 @@ export default {
         date: this.date,
         userId: this.user.id
       }
+      console.log(event)
       const { data } = await axios.post(url, JSON.stringify(event), {
         headers: {
           'Content-Type': 'application/json',
@@ -440,8 +448,10 @@ export default {
         this.threads.splice(index, 1);      
         console.log('done.');
         console.log('deleted event:', data.event);
+        this.deleteConfirmation = '';
       } else {
         console.log('deleted failed: deletion not confirmed!')
+        this.deleteConfirmation = '';
       }
     },
     async updateLocation(selectedLocation) {
@@ -495,20 +505,17 @@ export default {
       this.attachedFile = event.target.files[0];
     },
     toggleEditing(thread) {
-      if (this.isEditing) {
-        this.isEditing = false;
-        this.title = '';
-        this.address = '';
-        this.date = '';
-        this.description = '';
-      } else {
-        this.isEditing = true;
-        this.title = thread.name;
-        this.address = thread.address;
-        this.date = thread.date;
-        this.description = thread.description;
-      }
-    }
+      this.title = thread.name;
+      this.date = thread.date;
+      this.address = thread.address;
+      this.description = thread.description;
+    },
+    toggleAdding(thread) {
+      this.title = '';
+      this.date = '';
+      this.address = '';
+      this.description = '';
+    },
   },
   async created() {
     console.log(`created view: Home`);
@@ -552,22 +559,10 @@ b {
   font-size: 16px;
 }
 #banner {
-  // font-family: Niconne;
   font-size: 48px;
   font-weight: 400;
 }
-
-#dropdown {
-  border-radius: 15px;
-  padding-top: 10px;
-  padding-bottom: 10px;
-}
-#add-event-dropdown, #edit-event-dropdown, #delete-event-dropdown {
-  border-radius: 10px;
-  padding-top: 30px;
-  padding-bottom: 5px;
-}
-#event-title-input {
+.tm-input-large {
     width: 300px;
     font-size: 24px;
     border-left-color: white;
@@ -576,28 +571,25 @@ b {
     /* border-bottom-color: rgb(32, 203, 154); */
     margin-bottom: 10px;
 }
-#event-title-input:active, #event-title-input:focus {
+.tm-input-large:active, .tm-input-large:focus {
     width: 300px;
     border-left-color: white;
     border-right-color: white;
     border-top-color: white;
     border-bottom-color: rgb(32, 203, 154);
 }
-#event-input {
+.tm-input {
     border-left-color: white;
     border-right-color: white;
     border-top-color: white;
     border-bottom-color: white;
     /* border-bottom-color: rgb(32, 203, 154); */
 }
-#event-check {
-  background-color: rgba(32, 203, 154, 0.2);
-}
-#event-warn {
+.tm-warning {
   color: white;
   background-color: rgb(236, 11, 11);
 }
-#event-warn:hover, #event-warn:focus {
+.tm-warning:hover, .tm-warning:focus {
   color: white;
   background-color: rgba(236, 11, 11, .8);
 }
@@ -635,7 +627,4 @@ b {
     border-top-color: white;
     border-bottom-color: white;
 }
-// .tm-accordion-content {
-//   background-color: rgb(248, 248, 248);
-// }
 </style>

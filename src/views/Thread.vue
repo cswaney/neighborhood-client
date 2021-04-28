@@ -20,7 +20,6 @@
             <h3>Discussion</h3>
             <ul class="uk-comment-list">
                 <li>
-                    <!-- <comment v-bind="comments[0]" type="announcement"></comment> -->
                     <article v-if="comments.length > 0" class="uk-comment uk-visible-toggle" tabindex="-1">
                         <header class="uk-comment-header uk-position-relative">
                             <div class="uk-grid-medium uk-flex-middle" uk-grid>
@@ -33,11 +32,29 @@
                                 </div>
                             </div>
                             <div class="uk-position-top-right uk-position-small uk-hidden-hover">
-                              <a class="uk-icon-button tm-icon-button" href="#comment-textarea" uk-icon="reply" uk-scroll v-on:click="addingComment=true"></a>
+                              <button v-show="user.id == comments[0].userId" class="uk-icon-button tm-icon-button uk-margin-small-right" uk-icon="trash" v-on:click="deleteComment(comments[0].id)"></button>
+                              <button v-show="user.id == comments[0].userId" class="uk-icon-button tm-icon-button uk-margin-small-right" href="#" uk-icon="pencil" v-on:click="toggleEditingComment(comments[0].id)"></button>
+                              <a v-show="!(editingComment == comments[0].id)" class="uk-icon-button tm-icon-button" href="#comment-textarea" uk-icon="reply" uk-scroll v-on:click="addingComment=true"></a>
+                              <button
+                                v-show="editingComment == comments[0].id"
+                                class="uk-icon-button tm-icon-button tm-button uk-margin-small-left"
+                                v-bind:class="{'uk-disabled': !commentText, 'tm-button-primary': commentText}"
+                                href="#"
+                                uk-icon="check"
+                                v-on:click="updateComment(comments[0].id)">
+                              </button>
                             </div>
                         </header>
-                        <div class="uk-comment-body">
-                            <p>{{ announcement.text }}</p>
+                        <div v-show="!(editingComment == comments[0].id)" class="uk-comment-body">
+                            <p>{{ comments[0].text }}</p>
+                        </div>
+                        <div v-show="editingComment == comments[0].id" class="uk-comment-body">
+                            <textarea
+                              class="uk-textarea tm-textarea uk-form-width-large uk-border-rounded"
+                              rows="4"
+                              v-bind:placeholder="comments[0].text"
+                              v-model="commentText">
+                            </textarea>
                         </div>
                     </article>
                     <article v-if="comments.length == 0" class="uk-comment uk-visible-toggle" tabindex="-1">
@@ -53,7 +70,13 @@
                             </div>
                             <div class="uk-position-top-right uk-position-small uk-hidden-hover">
                               <button class="uk-icon-button tm-icon-button uk-margin-small-right" uk-icon="close" v-on:click="resetCommentText"></button>
-                              <button id="comment-check" class="uk-icon-button tm-icon-button" href="#" uk-icon="check" v-on:click="postComment"></button>
+                              <button
+                                class="uk-icon-button tm-icon-button"
+                                v-bind:class="{'uk-disabled': !commentText, 'tm-button-primary': commentText}"
+                                href="#"
+                                uk-icon="check"
+                                v-on:click="postComment">
+                              </button>
                             </div>
                         </header>
                         <div class="uk-comment-body">
@@ -62,7 +85,6 @@
                     </article>
                     <ul v-if="comments.length > 0" class="uk-margin-medium-top">
                         <li v-for="comment in replies" :key="comment.commentId" class="uk-margin-small-top">
-                            <!-- <comment v-bind="comment" type="reply"></comment> -->
                             <article class="uk-comment uk-comment-primary uk-visible-toggle uk-border-rounded" tabindex="-1">
                                 <header class="uk-comment-header uk-position-relative">
                                     <div class="uk-grid-medium uk-flex-middle" uk-grid>
@@ -76,15 +98,22 @@
                                     </div>
                                     <div class="uk-position-top-right uk-position-small uk-hidden-hover">
                                       <button v-show="user.id == comment.userId" class="uk-icon-button tm-icon-button uk-margin-small-right" uk-icon="trash" v-on:click="deleteComment(comment.id)"></button>
-                                      <button v-show="user.id == comment.userId" class="uk-icon-button tm-icon-button uk-margin-small-right" href="#" uk-icon="pencil" v-on:click="toggleEditingComment"></button>
-                                      <a v-show="!editingComment" class="uk-icon-button tm-icon-button" href="#comment-textarea" uk-icon="reply" uk-scroll v-on:click="addingComment=true"></a>
-                                      <button v-show="editingComment" class="uk-icon-button tm-icon-button tm-button tm-button-primary" href="#" uk-icon="check" v-on:click="updateComment(comment.id)"></button>
+                                      <button v-show="user.id == comment.userId" class="uk-icon-button tm-icon-button uk-margin-small-right" href="#" uk-icon="pencil" v-on:click="toggleEditingComment(comment.id)"></button>
+                                      <a v-show="!(editingComment == comment.id)" class="uk-icon-button tm-icon-button" href="#comment-textarea" uk-icon="reply" uk-scroll v-on:click="addingComment=true"></a>
+                                      <button
+                                        v-show="editingComment == comment.id"
+                                        class="uk-icon-button tm-icon-button tm-button"
+                                        v-bind:class="{'uk-disabled': !commentText, 'tm-button-primary': commentText}"
+                                        href="#"
+                                        uk-icon="check"
+                                        v-on:click="updateComment(comment.id)">
+                                      </button>
                                     </div>
                                 </header>
-                                <div v-show="!editingComment" class="uk-comment-body">
+                                <div v-show="!(editingComment == comment.id)" class="uk-comment-body">
                                     <p>{{ comment.text }}</p>
                                 </div>
-                                <div v-show="editingComment" class="uk-comment-body">
+                                <div v-show="editingComment == comment.id" class="uk-comment-body">
                                     <textarea
                                       class="uk-textarea tm-textarea uk-form-width-large uk-border-rounded"
                                       rows="4"
@@ -95,7 +124,6 @@
                             </article>
                         </li>
                         <li v-show="addingComment" class="uk-margin-small-top">
-                            <!-- <comment v-bind="comment" type="reply"></comment> -->
                             <article class="uk-comment uk-comment-primary uk-visible-toggle uk-border-rounded" tabindex="-1">
                                 <header class="uk-comment-header uk-position-relative">
                                     <div class="uk-grid-medium uk-flex-middle" uk-grid>
@@ -109,7 +137,12 @@
                                     </div>
                                     <div class="uk-position-top-right uk-position-small uk-hidden-hover">
                                       <button class="uk-icon-button tm-icon-button uk-margin-small-right" uk-icon="close" v-on:click="addingComment=false"></button>
-                                      <button class="uk-icon-button tm-icon-button tm-button tm-button-primary" href="#" uk-icon="check" v-on:click="postComment"></button>
+                                      <button
+                                        class="uk-icon-button tm-icon-button tm-button"
+                                        v-bind:class="{'uk-disabled': !commentText, 'tm-button-primary': commentText}"
+                                        href="#"
+                                        uk-icon="check"
+                                        v-on:click="postComment"></button>
                                     </div>
                                 </header>
                                 <div class="uk-comment-body">
@@ -383,11 +416,11 @@ export default {
     resetCommentText() {
       this.commentText = '';
     },
-    toggleEditingComment() {
+    toggleEditingComment(id) {
       if (this.editingComment) {
         this.editingComment = false;
       } else {
-        this.editingComment = true;
+        this.editingComment = id;
       }
     },
     timeSince(date) {
