@@ -7,7 +7,7 @@
         <div class="uk-container uk-container-small">
 
           <div v-show="!loadingData">
-
+              
               <div id="home" v-if="$auth.isAuthenticated & user != undefined">
 
                   <a class="uk-icon-button tm-icon-button" href="#" uk-icon="plus" uk-toggle></a>
@@ -55,11 +55,12 @@
 
                   <ul uk-accordion="multiple: true;">
                     <li v-for="thread in threads" v-bind:key="thread.id">
-                        <a class="uk-accordion-title" href="#">
+
+                        <a class="uk-accordion-title">
                           
                           {{ thread.name }}
 
-                          <button v-if="thread.userId == user.id" class="uk-icon-button tm-icon-button uk-margin-small-left" href="#" uk-icon="pencil" uk-toggle="#edit-event-dropdown"></button>
+                          <a v-if="thread.userId == user.id" class="uk-icon-button tm-icon-button uk-margin-small-left" href="#" uk-icon="pencil" uk-toggle v-on:click="toggleEditing(thread)"></a>
                           <div id="edit-event-dropdown" uk-dropdown="mode: click; pos: top-center;">
                               <form>
                                   <div class="uk-margin-small-bottom">
@@ -77,39 +78,42 @@
                                       <span class="uk-margin-small-right" uk-icon="comment"></span>
                                       <input id="event-input" class="uk-input uk-form-width-medium" type="text" :placeholder="thread.description" v-model="description">
                                   </div>
-                                  <div class="uk-margin-small uk-margin-remove-bottom">
+                                  <!-- <div class="uk-margin-small uk-margin-remove-bottom">
                                       <div uk-form-custom="target: true">
                                           <span class="uk-margin-small-right" uk-icon="file-text"></span>
                                           <input type="file" v-on:change="setAttachment">
                                           <input id="event-input" class="uk-input uk-form-width-medium" type="text" placeholder="Attachment" disabled>
                                       </div>
-                                  </div>
+                                  </div> -->
                                   <hr class="uk-margin-small">
                                   <div class="uk-margin-small uk-text-right">
                                       <a class="uk-icon-button tm-icon-button uk-margin-small-right" href="#" uk-icon="close" uk-toggle="target: #edit-event-dropdown;"></a>
-                                      <a id="event-check" class="uk-icon-button tm-icon-button" href="#" uk-icon="check" v-on:click="updateEvent"></a>
+                                      <a
+                                        class="uk-icon-button tm-icon-button tm-button-primary"
+                                        href="#" uk-icon="check"
+                                        uk-toggle="target: #edit-event-dropdown;"
+                                        v-on:click="updateEvent(thread.id)">
+                                      </a>
                                   </div>
                               </form>
                           </div>
 
-                          <a v-if="thread.userId == user.id" class="uk-icon-button tm-icon-button uk-margin-small-left" href="#" uk-icon="trash" uk-toggle></a>
+                          <a v-if="thread.userId == user.id" class="uk-icon-button tm-icon-button uk-margin-small-left" href="#" uk-icon="trash" uk-toggle="target: #delete-event-dropdown"></a>
                           <div id="delete-event-dropdown" uk-dropdown="mode: click; pos: top-center;">
                               <form>
                                   <div class="uk-margin-small">
                                       <span class="uk-margin-small-right" uk-icon="warning"></span>
-                                      <input id="event-input" class="uk-input uk-form-width-large" type="text" placeholder="Type DELETE to confirm">
+                                      <input id="event-input" class="uk-input uk-form-width-large" type="text" placeholder="Type DELETE to confirm" v-model="deleteConfirmation">
                                   </div>
                                   <hr class="uk-margin-small">
                                   <div class="uk-margin-small uk-text-right">
                                       <a class="uk-icon-button tm-icon-button uk-margin-small-right" href="#" uk-icon="close" uk-toggle="target: #delete-event-dropdown;"></a>
-                                      <a
-                                        id="event-warn"
+                                      <a id="event-warn"
                                         class="uk-icon-button tm-icon-button"
                                         href="#"
                                         uk-icon="check"
-                                        uk-toggle="target: #delete-event-dropdown;"
                                         v-on:click="deleteEvent(thread.id)"
-                                        >
+                                        uk-toggle="target: #delete-event-dropdown;">
                                       </a>
                                   </div>
                               </form>
@@ -124,6 +128,7 @@
                               <li><b>Where</b> {{ thread.address }}</li>
                             </ul>
                         </div>
+
                     </li>
                   </ul>
                       
@@ -262,9 +267,12 @@ export default {
         // },
       ],
 
+      isEditing: false,
       inputName: '',
       selectedLocationName: '',
       attachedFile: '',
+
+      deleteConfirmation: '',
 
       loadingData: false
     };
@@ -418,19 +426,23 @@ export default {
     },
     async deleteEvent(eventId) {
       console.log(`deleting event (event=${eventId})...`);
-      const token = await this.$auth.getTokenSilently();
-      const url = apiEndpoint + `/events/${eventId}`;
-      // TODO: Pass the event data to delete endpoint (instead of looking up createdAt using event id)?
-      const { data } = await axios.delete(url, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-      // update local events on success
-      const index = this.threads.findIndex(event => event.id == eventId);
-      this.threads.splice(index, 1);      
-      console.log('done.');
-      console.log('deleted event:', data.event);
+      if (this.deleteConfirmation == 'DELETE') {
+        const token = await this.$auth.getTokenSilently();
+        const url = apiEndpoint + `/events/${eventId}`;
+        // TODO: Pass the event data to delete endpoint (instead of looking up createdAt using event id)
+        const { data } = await axios.delete(url, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+        // update local events on success
+        const index = this.threads.findIndex(event => event.id == eventId);
+        this.threads.splice(index, 1);      
+        console.log('done.');
+        console.log('deleted event:', data.event);
+      } else {
+        console.log('deleted failed: deletion not confirmed!')
+      }
     },
     async updateLocation(selectedLocation) {
       if (selectedLocation != this.user.locationName) {
@@ -481,6 +493,21 @@ export default {
       // TODO: find a way to do this in createEvent/updateEvent to make sure attachment is added before creating/updating?
       console.log('setting attachment: ', event.target.files);
       this.attachedFile = event.target.files[0];
+    },
+    toggleEditing(thread) {
+      if (this.isEditing) {
+        this.isEditing = false;
+        this.title = '';
+        this.address = '';
+        this.date = '';
+        this.description = '';
+      } else {
+        this.isEditing = true;
+        this.title = thread.name;
+        this.address = thread.address;
+        this.date = thread.date;
+        this.description = thread.description;
+      }
     }
   },
   async created() {
